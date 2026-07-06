@@ -1,5 +1,6 @@
 ﻿using System.Threading.Channels;
-
+using Concentus;
+using Concentus.Structs;
 
 namespace DiscordVoiceBotMark.src.Voice
 {
@@ -9,11 +10,16 @@ namespace DiscordVoiceBotMark.src.Voice
         public UserVoiceSession(ulong userId)
         {
             UserId = userId;
+
+            OpusDecoder = OpusCodecFactory.CreateDecoder(48000, 2);
         }
 
         public ulong UserId { get; }
         public DateTime LastPackageUTC { get; set; } = DateTime.UtcNow;
-        public bool IsSpeaking { get; set; }
+        public bool IsSpeaking { get; set; } = false;
+        public bool IsMonitored { get; set; } = false;
+
+        public IOpusDecoder OpusDecoder { get; set; }
 
         public CancellationTokenSource? ProccessingCts { get; set;}
         public CancellationTokenSource ReadLoopCts { get; } = new(); 

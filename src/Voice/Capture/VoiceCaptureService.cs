@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Discord.Audio;
 
-namespace DiscordVoiceBotMark.src.Voice.Capture
+namespace DiscordVoiceBotMark.src.Voice
 {
     internal interface IVoiceCaptureService
     {
@@ -23,6 +23,7 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
         private readonly ILogger<VoiceCaptureService> _logger;
         private readonly IVoiceSessionManager _sessionManager;
         private readonly IVoiceActivityDetector _voiceDetector;
+
         public Task StartListeningAsync(IAudioClient audioClient)
         {
             audioClient.StreamCreated += OnStreamCreatedAsync;
@@ -50,8 +51,13 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
 
             session.CurrentStreamCts = CancellationTokenSource.CreateLinkedTokenSource(session.ReadLoopCts.Token);
 
-            _ = ReadAudioLoopAsync(session, stream, session.CurrentStreamCts.Token)
-            _voiceDetector.StartChecking(session);
+            _ = ReadAudioLoopAsync(session, stream, session.CurrentStreamCts.Token);
+            if (!session.IsMonitored)
+            {
+                session.IsMonitored = true;
+                _voiceDetector.StartChecking(session);
+            }
+
             return Task.CompletedTask;
         }
         //if user mute himself
@@ -67,7 +73,7 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
 
             session.CurrentStreamCts?.Cancel();
             session.CurrentStreamCts?.Dispose();
-            return Task.CompletedTask;
+            return Task.CompletedTask;  
         }
         //if user disconnecting
         private Task OnClientDisconnectedAsync(ulong userId)

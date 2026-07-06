@@ -3,10 +3,7 @@ using Discord.WebSocket;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetEnv;
-using DiscordVoiceBotMark.src.Discord;
-using DiscordVoiceBotMark.src.Voice.Capture;
 using DiscordVoiceBotMark.src.Config;
-
 
 namespace DiscordVoiceBotMark.src.Voice
 {
@@ -23,7 +20,8 @@ namespace DiscordVoiceBotMark.src.Voice
                                  GatewayIntents.GuildMessages |
                                  GatewayIntents.GuildVoiceStates |
                                  GatewayIntents.MessageContent,
-                LogLevel = LogSeverity.Info
+                LogLevel = LogSeverity.Info,
+                EnableVoiceDaveEncryption = true,
             };
 
             builder.Services.AddSingleton(new DiscordSocketClient(discordConfig));
@@ -32,6 +30,7 @@ namespace DiscordVoiceBotMark.src.Voice
 
             var host = builder.Build();
             await host.UseVoiceHandlersAsync();
+            await host.UseUtteranceCollectorAsync();
 
             var client = host.Services.GetRequiredService<DiscordSocketClient>();
             client.Log += LogAsync;

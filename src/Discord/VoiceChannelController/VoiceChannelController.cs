@@ -1,7 +1,7 @@
 ﻿using Discord;
 using Discord.Audio;
 using Discord.WebSocket;
-using DiscordVoiceBotMark.src.Voice.Capture;
+using DiscordVoiceBotMark.src.Voice;
 using Microsoft.Extensions.Logging;
 
 namespace DiscordVoiceBotMark.src.Discord
@@ -53,6 +53,8 @@ namespace DiscordVoiceBotMark.src.Discord
             return Task.CompletedTask;
         }
 
+        
+        // Fix leave logic
         private async Task LeaveVoiceChannelAsync(SocketMessage message)
         {
             var textChannel = message.Channel as SocketTextChannel;
