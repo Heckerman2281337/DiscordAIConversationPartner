@@ -30,7 +30,8 @@ namespace DiscordVoiceBotMark.src.Voice
 
             var host = builder.Build();
             await host.UseVoiceHandlersAsync();
-            await host.UseUtteranceCollectorAsync();
+            
+            host.UseVoicePipeline();
 
             var client = host.Services.GetRequiredService<DiscordSocketClient>();
             client.Log += LogAsync;

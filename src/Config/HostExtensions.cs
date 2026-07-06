@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using DiscordVoiceBotMark.src.Discord;
 using DiscordVoiceBotMark.src.Orchestration;
+using DiscordVoiceBotMark.src.Pipeline;
 using DiscordVoiceBotMark.src.Voice;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,10 +21,12 @@ namespace DiscordVoiceBotMark.src.Config
            // test.SpeechEnded += userId => Console.WriteLine($"[TEST] Речь юзера {userId} закончилась");
         }
 
-        public static async Task UseUtteranceCollectorAsync(this IHost host)
+        public static void UseVoicePipeline(this IHost host)
         {
-            var utteranceCollector = host.Services.GetRequiredService<UtteranceCollector>();
-            
+            var collector = host.Services.GetRequiredService<UtteranceCollector>();
+            var pipeline = host.Services.GetRequiredService<VoiceProcessing>();
+
+            collector.TalkCollected += pipeline.ExecutePipelineAsync;
         }
     }
 }

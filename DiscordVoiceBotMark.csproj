@@ -19,11 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="src\Conversion\" />
-    <Folder Include="src\Pipeline\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="nativeLibs\libdave.dll">
        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	   <Link>libdave.dll</Link>
