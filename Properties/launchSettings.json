@@ -1,7 +1,8 @@
 {
   "profiles": {
     "DiscordVoiceBotMark": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "workingDirectory": "F:\\Projects\\DiscordVoiceBotMark"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker"

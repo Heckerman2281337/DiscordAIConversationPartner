@@ -1,10 +1,10 @@
 ﻿using System.Threading.Channels;
 
 
-namespace DiscordVoiceBotMark.src.Voice.Capture
+namespace DiscordVoiceBotMark.src.Voice
 {
     //saves state of each user in voice channel
-    internal sealed class UserVoiceSession : IDisposable
+    public sealed class UserVoiceSession : IDisposable
     {
         public UserVoiceSession(ulong userId)
         {
@@ -16,7 +16,8 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
         public bool IsSpeaking { get; set; }
 
         public CancellationTokenSource? ProccessingCts { get; set;}
-        public CancellationTokenSource ReadLoopCts { get; } = new();
+        public CancellationTokenSource ReadLoopCts { get; } = new(); 
+        public CancellationTokenSource? CurrentStreamCts { get; set;}
 
         //Channel to avoid thread-like errors
         public Channel<byte[]> OpusFrames { get; } = Channel.CreateUnbounded<byte[]>(
@@ -31,8 +32,13 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
         {
             ReadLoopCts.Cancel();
             ReadLoopCts.Dispose();
+
             ProccessingCts?.Cancel();
             ProccessingCts?.Dispose();
+
+            CurrentStreamCts?.Cancel();
+            CurrentStreamCts?.Dispose();
+
             OpusFrames.Writer.TryComplete();
         }
     }

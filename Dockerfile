@@ -2,6 +2,13 @@
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
 FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libopus0 \
+    libsodium23 \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libopus.so.0 /usr/lib/x86_64-linux-gnu/libopus.so \
+    && ln -sf /usr/lib/x86_64-linux-gnu/libsodium.so.23 /usr/lib/x86_64-linux-gnu/libsodium.so
 USER $APP_UID
 WORKDIR /app
 

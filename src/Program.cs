@@ -2,14 +2,19 @@
 using Discord.WebSocket;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading.Tasks;
+using DotNetEnv;
+using DiscordVoiceBotMark.src.Discord;
 using DiscordVoiceBotMark.src.Voice.Capture;
-namespace DiscordVoiceBotMark.src
+using DiscordVoiceBotMark.src.Config;
+
+
+namespace DiscordVoiceBotMark.src.Voice
 {
     internal class Program
     {
         static async Task Main()
         {
+            Env.Load();
             var builder = Host.CreateApplicationBuilder();
 
             var discordConfig = new DiscordSocketConfig
@@ -22,12 +27,15 @@ namespace DiscordVoiceBotMark.src
             };
 
             builder.Services.AddSingleton(new DiscordSocketClient(discordConfig));
-            builder.Services.AddSingleton<IVoiceSessionManager, VoiceSessionManager>();
+
+            builder.Services.AddVoiceServices();
 
             var host = builder.Build();
-            var client = host.Services.GetRequiredService<DiscordSocketClient>();
+            await host.UseVoiceHandlersAsync();
 
+            var client = host.Services.GetRequiredService<DiscordSocketClient>();
             client.Log += LogAsync;
+
 
             string token = Environment.GetEnvironmentVariable("BOT_TOKEN")!; // чтобы компилятор не ругался
 
@@ -38,7 +46,7 @@ namespace DiscordVoiceBotMark.src
             }
             else
             {
-                Console.WriteLine("[Program.cs 39] Не удалось найти переменную окружения BOT_TOKEN");
+                Console.WriteLine("[Program.cs] Не удалось найти переменную окружения BOT_TOKEN");
             }
 
             await host.RunAsync();

@@ -8,18 +8,21 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
         public Task StartListeningAsync(IAudioClient audioClient);
         public Task StopListeningAsync(IAudioClient audioClient);
     }
-
+   
     internal sealed class VoiceCaptureService : IVoiceCaptureService
     {
-        public VoiceCaptureService(IVoiceSessionManager sessionManager, ILogger<VoiceCaptureService> logger) 
+        public VoiceCaptureService
+            (IVoiceSessionManager sessionManager, ILogger<VoiceCaptureService> logger,
+            IVoiceActivityDetector voiceDetector) 
         { 
             _sessionManager = sessionManager;
             _logger = logger;
+            _voiceDetector = voiceDetector;
         }
 
         private readonly ILogger<VoiceCaptureService> _logger;
         private readonly IVoiceSessionManager _sessionManager;
-
+        private readonly IVoiceActivityDetector _voiceDetector;
         public Task StartListeningAsync(IAudioClient audioClient)
         {
             audioClient.StreamCreated += OnStreamCreatedAsync;
@@ -45,13 +48,25 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
             _logger.Log(LogLevel.Information, $"[VoiceCaptureService] session: {session} " +
                 $"was created for userId: {userId}");
 
-            _ = ReadAudioLoopAsync(session, stream, session.ReadLoopCts.Token);
+            session.CurrentStreamCts = CancellationTokenSource.CreateLinkedTokenSource(session.ReadLoopCts.Token);
+
+            _ = ReadAudioLoopAsync(session, stream, session.CurrentStreamCts.Token)
+            _voiceDetector.StartChecking(session);
             return Task.CompletedTask;
         }
         //if user mute himself
         private Task OnStreamDestroyedAsync(ulong userId)
         {   
+            _sessionManager.TryGetByUserId(userId, out var session);
 
+            if(session == null)
+            {
+                _logger.Log(LogLevel.Debug, $"[VoiceCaptureService] session is null");
+                return Task.CompletedTask;
+            }
+
+            session.CurrentStreamCts?.Cancel();
+            session.CurrentStreamCts?.Dispose();
             return Task.CompletedTask;
         }
         //if user disconnecting
@@ -63,7 +78,7 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
         }
         
         private async Task ReadAudioLoopAsync
-            (UserVoiceSession voiceSession,AudioInStream stream, CancellationToken cancellationToken)
+            (UserVoiceSession voiceSession, AudioInStream stream, CancellationToken cancellationToken)
         {
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -73,6 +88,7 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
                     if (frame.Missed) continue;
                     await voiceSession.OpusFrames.Writer.WriteAsync(frame.Payload, cancellationToken);
                     voiceSession.LastPackageUTC = DateTime.UtcNow;
+                    voiceSession.IsSpeaking = true;
                 }
                 catch (OperationCanceledException)
                 {

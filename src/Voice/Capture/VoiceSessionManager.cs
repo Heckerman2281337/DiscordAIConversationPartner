@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace DiscordVoiceBotMark.src.Voice.Capture
+namespace DiscordVoiceBotMark.src.Voice
 {
     //For DI
     internal interface IVoiceSessionManager
@@ -14,7 +14,6 @@ namespace DiscordVoiceBotMark.src.Voice.Capture
     //Holds every userVoiceSession and manage them
     internal sealed class VoiceSessionManager : IVoiceSessionManager
     {
-
         private readonly ConcurrentDictionary<ulong, UserVoiceSession> _byUserId = new();
         
         public IReadOnlyCollection<UserVoiceSession> AllSessions => _byUserId.Values.ToArray();
