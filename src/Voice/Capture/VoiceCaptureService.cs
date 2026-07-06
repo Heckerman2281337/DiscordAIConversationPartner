@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Discord.Audio;
+using Discord.WebSocket;
 
 namespace DiscordVoiceBotMark.src.Voice
 {
@@ -13,16 +14,18 @@ namespace DiscordVoiceBotMark.src.Voice
     {
         public VoiceCaptureService
             (IVoiceSessionManager sessionManager, ILogger<VoiceCaptureService> logger,
-            IVoiceActivityDetector voiceDetector) 
+            IVoiceActivityDetector voiceDetector, DiscordSocketClient discordClient) 
         { 
             _sessionManager = sessionManager;
             _logger = logger;
             _voiceDetector = voiceDetector;
+            _discordClient = discordClient;
         }
 
         private readonly ILogger<VoiceCaptureService> _logger;
         private readonly IVoiceSessionManager _sessionManager;
         private readonly IVoiceActivityDetector _voiceDetector;
+        private readonly DiscordSocketClient _discordClient;
 
         public Task StartListeningAsync(IAudioClient audioClient)
         {
@@ -44,7 +47,13 @@ namespace DiscordVoiceBotMark.src.Voice
         //if user starts talking
         private Task OnStreamCreatedAsync(ulong userId, AudioInStream stream)
         {
-            var session = _sessionManager.GetOrCreate(userId);
+            var guildUser = _discordClient.Guilds
+                .Select(g => g.GetUser(userId))
+                .FirstOrDefault(u => u?.VoiceChannel != null);
+
+            ulong channelId = guildUser?.VoiceChannel?.Id ?? 0;
+
+            var session = _sessionManager.GetOrCreate(userId, channelId);
 
             _logger.Log(LogLevel.Information, $"[VoiceCaptureService] session: {session} " +
                 $"was created for userId: {userId}");

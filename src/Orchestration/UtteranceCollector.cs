@@ -25,7 +25,7 @@ namespace DiscordVoiceBotMark.src.Orchestration
         private readonly ILogger<UtteranceCollector> _logger;
         private readonly IEncoder _encoder;
 
-        public event Func<ulong, byte[], Task>? TalkCollected;
+        public event Func<ulong, ulong, byte[], Task>? TalkCollected;
 
         private async void OnSpeechEnded(ulong userId)
         {
@@ -61,7 +61,7 @@ namespace DiscordVoiceBotMark.src.Orchestration
                 byte[] audio = await _encoder.ConvertPcmAsync(userTalk);
                 _logger.LogInformation($"[UtteranceCollector] Сжатие завершено. Получено {audio.Length} байт MP3.");
 
-                if (audio != null) await ((TalkCollected?.Invoke(session.UserId, audio)) ?? Task.CompletedTask);
+                if (audio != null) await ((TalkCollected?.Invoke(session.UserId, session.ChannelId, audio)) ?? Task.CompletedTask);
 
             }
             catch (Exception ex)

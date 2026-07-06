@@ -7,7 +7,7 @@ namespace DiscordVoiceBotMark.src.Pipeline
     }
     public interface ILlmService
     {
-        public Task<string?> ExecuteLlmAsync(string promt);
+        public Task<string?> ExecuteLlmAsync(List<object> history);
     }
     public interface ITextToSpeechService
     {

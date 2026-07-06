@@ -5,7 +5,7 @@ namespace DiscordVoiceBotMark.src.Voice
     //For DI
     internal interface IVoiceSessionManager
     {
-        public UserVoiceSession GetOrCreate(ulong userId);
+        public UserVoiceSession GetOrCreate(ulong userId, ulong channelId);
         public bool TryGetByUserId(ulong userId, out UserVoiceSession? session);
         public void Remove(ulong userId);
         public IReadOnlyCollection<UserVoiceSession> AllSessions { get; } // To avoid modifying AllSession from anywehre
@@ -18,10 +18,13 @@ namespace DiscordVoiceBotMark.src.Voice
         
         public IReadOnlyCollection<UserVoiceSession> AllSessions => _byUserId.Values.ToArray();
 
-        public UserVoiceSession GetOrCreate(ulong userId)
+        public UserVoiceSession GetOrCreate(ulong userId, ulong channelId)
         {
             //We look is there existing session, if yes then get it, if no then create it
-            return _byUserId.GetOrAdd(userId, _ => new UserVoiceSession(userId));
+            var session = _byUserId.GetOrAdd(userId, channelId => new UserVoiceSession(userId, channelId));
+            session.ChannelId = channelId;
+
+            return session;
         }
 
         public void Remove(ulong userId)

@@ -23,7 +23,7 @@ namespace DiscordVoiceBotMark.src.Pipeline
             if (_systemPromt == null)
             {
                 _systemPromt = "Ты полезный ИИ-ассистент.";
-                _logger.Log(LogLevel.Error, $"[LlmService] Нет endpoint для openrouter");
+                _logger.Log(LogLevel.Error, $"[LlmService] Нет BOT_SYSTEM_PROMPT, установлен дефолтный");
             }
         }
 
@@ -32,20 +32,24 @@ namespace DiscordVoiceBotMark.src.Pipeline
         private readonly string? _apiKey;
         private readonly string? _endpoint;
         private readonly string? _systemPromt; 
-        public async Task<string?> ExecuteLlmAsync(string promt)
+        public async Task<string?> ExecuteLlmAsync(List<object> history)
         {
-            if (string.IsNullOrWhiteSpace(promt)) return null;
+            if(history == null || history.Count == 0) return null;
 
             //data for API
+            var messagesPayload = new List<object>
+            {
+                new { role = "system", content = _systemPromt! }
+            };
+
+            messagesPayload.AddRange(history);
+
             var payload = new
             {
                 model = "meta-llama/llama-3-8b-instruct:free",
-                messages = new[] 
-                {
-                    new { role = "system", content = _systemPromt! },
-                    new { role = "user", content = promt }
-                }
+                messages = messagesPayload
             };
+
             //HTTP requests
             var request = new HttpRequestMessage(HttpMethod.Post, _endpoint);
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
