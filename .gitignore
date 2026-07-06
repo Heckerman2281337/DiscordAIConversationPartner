@@ -1,0 +1,28 @@
+# Build
+bin/
+obj/
+
+# IDE
+.vs/
+.idea/
+*.user
+*.suo
+
+# Secrets
+.env
+
+# Logs
+*.log
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Uploaded files
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini

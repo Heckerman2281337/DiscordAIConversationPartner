@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <DockerfileContext>.</DockerfileContext>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Concentus" Version="2.2.2" />
+    <PackageReference Include="Discord.Net" Version="3.20.1" />
+    <PackageReference Include="DotNetEnv" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="nativeLibs\libdave.dll">
+       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	   <Link>libdave.dll</Link>
+    </None>
+    <None Update="nativeLibs\libsodium.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<Link>libsodium.dll</Link>
+    </None>
+    <None Update="nativeLibs\opus.dll">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<Link>opus.dll</Link>
+    </None>
+  </ItemGroup>
+
+</Project>
