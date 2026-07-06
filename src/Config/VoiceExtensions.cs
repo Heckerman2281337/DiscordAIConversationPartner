@@ -16,9 +16,9 @@ namespace DiscordVoiceBotMark.src.Config
             services.AddSingleton<IVoiceActivityDetector, VoiceActivityDetector>();
 
 
-            services.AddSingleton<ISpeechToTextService, SpeechToTextService>();
-            services.AddSingleton<ILlmService, LlmService>();
-            services.AddSingleton<ITextToSpeechService, TextToSpeechService>();
+            services.AddHttpClient<ISpeechToTextService, SpeechToTextService>();
+            services.AddHttpClient<ILlmService, LlmService>();
+            services.AddHttpClient<ITextToSpeechService, TextToSpeechService>();
             services.AddSingleton<IVoiceOutputService, VoiceOutputService>();
 
 
