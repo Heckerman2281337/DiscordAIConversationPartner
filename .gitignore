@@ -26,3 +26,4 @@ uploads/
 .DS_Store
 Thumbs.db
 Desktop.iniModels/ggml-base.bin
+Models/ggml-base.bin
