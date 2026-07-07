@@ -3,6 +3,7 @@ using Discord.Audio;
 using Discord.WebSocket;
 using DiscordVoiceBotMark.src.Voice;
 using Microsoft.Extensions.Logging;
+using System.Runtime.InteropServices;
 
 namespace DiscordVoiceBotMark.src.Discord
 {
@@ -102,6 +103,18 @@ namespace DiscordVoiceBotMark.src.Discord
                 var guildId = author.Guild.Id;
                 //input audio
                 var audioClient = await author.VoiceChannel.ConnectAsync();
+
+                try
+                {
+                    var handle = NativeLibrary.Load("libdave");
+                    Console.WriteLine("libdave loaded successfully");
+                    NativeLibrary.Free(handle);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"libdave load error: {ex}");
+                }
+
                 _sessionManager.SetAudioInputClient(guildId, audioClient);
 
                 //output audio
