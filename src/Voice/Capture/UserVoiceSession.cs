@@ -1,26 +1,22 @@
 ﻿using System.Threading.Channels;
-using Concentus;
-using Concentus.Structs;
 
 namespace DiscordVoiceBotMark.src.Voice
 {
     //saves state of each user in voice channel
     public sealed class UserVoiceSession : IDisposable
     {
-        public UserVoiceSession(ulong userId, ulong channelId)
+        public UserVoiceSession(ulong userId, ulong guildId)
         {
             UserId = userId;
-            ChannelId = channelId;
-            OpusDecoder = OpusCodecFactory.CreateDecoder(48000, 2);
+            GuildId = guildId;
         }
 
         public ulong UserId { get; }
-        public ulong ChannelId { get; set; }
+        public ulong GuildId { get; set; }
         public DateTime LastPackageUTC { get; set; } = DateTime.UtcNow;
         public bool IsSpeaking { get; set; } = false;
         public bool IsMonitored { get; set; } = false;
 
-        public IOpusDecoder OpusDecoder { get; set; }
 
         public CancellationTokenSource? ProccessingCts { get; set;}
         public CancellationTokenSource ReadLoopCts { get; } = new(); 

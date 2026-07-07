@@ -47,13 +47,18 @@ namespace DiscordVoiceBotMark.src.Voice
         //if user starts talking
         private Task OnStreamCreatedAsync(ulong userId, AudioInStream stream)
         {
-            var guildUser = _discordClient.Guilds
+            var id = _discordClient.Guilds
                 .Select(g => g.GetUser(userId))
                 .FirstOrDefault(u => u?.VoiceChannel != null);
 
-            ulong channelId = guildUser?.VoiceChannel?.Id ?? 0;
+            if (id == null)
+            {
+                _logger.Log(LogLevel.Error, $"[VoiceCaptureService] id гильдии null");
+                return Task.CompletedTask;
+            }
 
-            var session = _sessionManager.GetOrCreate(userId, channelId);
+            var guildId = id.Guild.Id;
+            var session = _sessionManager.GetOrCreate(userId, guildId);
 
             _logger.Log(LogLevel.Information, $"[VoiceCaptureService] session: {session} " +
                 $"was created for userId: {userId}");
@@ -100,7 +105,7 @@ namespace DiscordVoiceBotMark.src.Voice
                 try
                 {
                     var frame = await stream.ReadFrameAsync(cancellationToken);
-                    if (frame.Missed) continue;
+                    if (frame.Missed || frame.Payload.Length < 10) continue;
                     await voiceSession.OpusFrames.Writer.WriteAsync(frame.Payload, cancellationToken);
                     voiceSession.LastPackageUTC = DateTime.UtcNow;
                     voiceSession.IsSpeaking = true;

@@ -22,15 +22,17 @@ namespace DiscordVoiceBotMark.src.Discord
             "Оооо понятно ребят, я пошёл"
         };
 
-        public VoiceChannelController(IVoiceCaptureService service, ILogger<VoiceChannelController> logger)
+        public VoiceChannelController(IVoiceCaptureService service, IVoiceSessionManager sessionManager,
+            ILogger<VoiceChannelController> logger)
         { 
             _service = service;
             _logger = logger;
+            _sessionManager = sessionManager;
         }
 
-        private IAudioClient? _audioClient;
         private readonly ILogger<VoiceChannelController> _logger;
         private readonly IVoiceCaptureService _service;
+        private readonly IVoiceSessionManager _sessionManager;
 
         public Task RegisterHandlersAsync(DiscordSocketClient client)
         {
@@ -41,33 +43,42 @@ namespace DiscordVoiceBotMark.src.Discord
 
         public Task UnregisterHandlersAsync(DiscordSocketClient client)
         {
-            throw new NotImplementedException();
+            client.MessageReceived -= OnMessageRecieved;
+            return Task.CompletedTask;
         }
 
         private Task OnMessageRecieved(SocketMessage message)
         {
             if (message.Author.IsBot) return Task.CompletedTask;
-            if (message.Content.StartsWith("!leave")) _ = LeaveVoiceChannelAsync(message);
-            if (message.Content.StartsWith("!join")) _ = JoinVoiceChannelAsync(message);
+            if (message.Content.StartsWith("!leave", StringComparison.OrdinalIgnoreCase)) _ = LeaveVoiceChannelAsync(message);
+            if (message.Content.StartsWith("!join", StringComparison.OrdinalIgnoreCase)) _ = JoinVoiceChannelAsync(message);
 
             return Task.CompletedTask;
         }
 
-        
-        // Fix leave logic
         private async Task LeaveVoiceChannelAsync(SocketMessage message)
         {
             var textChannel = message.Channel as SocketTextChannel;
-            if (textChannel == null) return;    
+            if (textChannel == null) return;
 
             var guild = textChannel.Guild;
             var botVoiceChannel = guild.CurrentUser.VoiceChannel;
-            int randomIndex = Random.Shared.Next(randomLeaveBotMessage.Count);
 
             if (botVoiceChannel != null)
             {
-                await botVoiceChannel.DisconnectAsync();
-                await textChannel.SendMessageAsync(randomLeaveBotMessage[randomIndex]);
+                try
+                {
+                    _sessionManager.ClearGuildSession(guild.Id);
+
+                    await botVoiceChannel.DisconnectAsync();
+
+                    int randomIndex = Random.Shared.Next(randomLeaveBotMessage.Count);
+                    await textChannel.SendMessageAsync(randomLeaveBotMessage[randomIndex]);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(LogLevel.Error, $"[VoiceChannelController] Error while leaving: {ex.Message}");
+                }
             }
         }
 
@@ -88,9 +99,16 @@ namespace DiscordVoiceBotMark.src.Discord
                     return;
                 }
 
-                _audioClient = await author.VoiceChannel.ConnectAsync();
+                var guildId = author.Guild.Id;
+                //input audio
+                var audioClient = await author.VoiceChannel.ConnectAsync();
+                _sessionManager.SetAudioInputClient(guildId, audioClient);
 
-                await _service.StartListeningAsync(_audioClient);
+                //output audio
+                var outStream = audioClient.CreatePCMStream(AudioApplication.Voice);
+                _sessionManager.SetAudioOutputClient(guildId, outStream);
+
+                await _service.StartListeningAsync(audioClient);
             }
             catch (Exception ex)
             {

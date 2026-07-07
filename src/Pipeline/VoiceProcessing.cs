@@ -28,18 +28,18 @@ namespace DiscordVoiceBotMark.src.Pipeline
             {301366361236570122, "Миша" },
             {522805439767904266, "Андрей"},
             {476665894182060042, "Марк" },
-            {349152582528270347, "Саша" },
+            {349152582528270347, "Саша Зильбер" },
             {351760723493257217, "Рома" },
             {589711182290485279, "Бодя" },
             {270393513278046209, "Марк" },
-            {360708126124670976, "Илья" },
+            {360708126124670976, "Илья Лучов" },
             {831916416592379914, "Паша" },
             {762304407546494997, "Кэзбек" },
             {1180964704856846457, "Илья васдаф" }
         };
 
 
-        public async Task ExecutePipelineAsync(ulong userId, ulong channelId, byte[] inputAudio)
+        public async Task ExecutePipelineAsync(ulong userId, ulong guildId, byte[] inputAudio)
         {
             var userText = await _speechToTextService.ExecuteSpeechToTextAsync(inputAudio);
             if (string.IsNullOrWhiteSpace(userText)) return;
@@ -47,12 +47,12 @@ namespace DiscordVoiceBotMark.src.Pipeline
             string username = _names.TryGetValue(userId, out var name) ? name : $"Юзер_{userId}";
 
             string formattedPromt = $"[{username}]: {userText}";
-            _chatHistoryManager.AddMessage(channelId, "user", formattedPromt);
+            _chatHistoryManager.AddMessage(guildId, "user", formattedPromt);
 
-            var aiAnswer = await _llmService.ExecuteLlmAsync(_chatHistoryManager.GetHistory(channelId));
+            var aiAnswer = await _llmService.ExecuteLlmAsync(_chatHistoryManager.GetHistory(guildId));
             if(string.IsNullOrWhiteSpace(aiAnswer)) return;
 
-            _chatHistoryManager.AddMessage(channelId, "assistant", aiAnswer);
+            _chatHistoryManager.AddMessage(guildId, "assistant", aiAnswer);
 
             var outputAudio = await _textToSpeechService.ExecuteTextToSpeechAsync(aiAnswer);
             if(outputAudio == null || outputAudio.Length == 0) return;
