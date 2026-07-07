@@ -37,6 +37,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsodium23 \
     && rm -rf /var/lib/apt/lists/*
 
+RUN uname -m
+
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libopus.so.0 /usr/lib/x86_64-linux-gnu/libopus.so && \
     ln -sf /usr/lib/x86_64-linux-gnu/libsodium.so.23 /usr/lib/x86_64-linux-gnu/libsodium.so
 
@@ -47,6 +49,10 @@ RUN curl -L \
     chmod 755 /usr/lib/libdave.so && \
     ldconfig && \
     rm /tmp/libdave.zip
+
+RUN ls -lah /usr/lib | grep libdave || true && \
+    file /usr/lib/libdave.so && \
+    ldd /usr/lib/libdave.so || true
 
 ENV LD_LIBRARY_PATH=/usr/lib:/usr/local/lib
 
