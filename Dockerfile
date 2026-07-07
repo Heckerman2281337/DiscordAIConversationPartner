@@ -32,10 +32,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     curl \
     unzip \
+    file \
     ca-certificates \
     libopus0 \
     libsodium23 \
     && rm -rf /var/lib/apt/lists/*
+
+RUN ls -l /usr/lib/libdave.so && \
+    file /usr/lib/libdave.so && \
+    ldd /usr/lib/libdave.so
 
 RUN uname -m
 
@@ -45,10 +50,11 @@ RUN ln -sf /usr/lib/x86_64-linux-gnu/libopus.so.0 /usr/lib/x86_64-linux-gnu/libo
 RUN curl -L \
     https://github.com/discord/libdave/releases/latest/download/libdave-Linux-X64-boringssl.zip \
     -o /tmp/libdave.zip && \
-    unzip -j /tmp/libdave.zip -d /usr/lib && \
-    chmod 755 /usr/lib/libdave.so && \
-    ldconfig && \
-    rm /tmp/libdave.zip
+    unzip /tmp/libdave.zip "lib/libdave.so" -d /usr/local && \
+    cp /usr/local/lib/libdave.so /usr/lib/libdave.so && \
+    ldconfig
+
+RUN ls -l /usr/lib/libdave.so
 
 RUN ls -lah /usr/lib | grep libdave || true && \
     file /usr/lib/libdave.so && \
