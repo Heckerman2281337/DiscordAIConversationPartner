@@ -37,31 +37,31 @@ namespace DiscordVoiceBotMark.src.Orchestration
                 return;
             }
 
-            List<byte[]> userTalk = new();
-
-            short[] pcm = new short[1920]; // decoding goes by this formula: 48k * 0.02 sec * 2
-                                           // 48k - standart discord frequency, 0.02 sec - standart discord frame, 2 - stereo 
-
-            while (session.OpusFrames.Reader.TryRead(out var frame))
-            {
-                var decodedSamples = session.OpusDecoder.Decode(frame, pcm, 960); 
-
-                byte[] byteBuffer = new byte[3840]; // creating new byte buffer for sample
-                Buffer.BlockCopy(pcm, 0, byteBuffer, 0, 3840);
-
-                userTalk.Add(byteBuffer);
-                _logger.Log(LogLevel.Information, $"[UtteranceCollector] в списке: {userTalk.Count} элементов");
-            }
-
-            if (userTalk.Count == 0) return;
-
             try
             {
+                List<byte[]> userTalk = new();
+
+                short[] pcm = new short[1920]; // decoding goes by this formula: 48k * 0.02 sec * 2
+                                               // 48k - standart discord frequency, 0.02 sec - standart discord frame, 2 - stereo 
+
+                while (session.OpusFrames.Reader.TryRead(out var frame))
+                {
+                    var decodedSamples = session.OpusDecoder.Decode(frame, pcm, 960);
+
+                    byte[] byteBuffer = new byte[3840]; // creating new byte buffer for sample
+                    Buffer.BlockCopy(pcm, 0, byteBuffer, 0, 3840);
+
+                    userTalk.Add(byteBuffer);
+                    _logger.Log(LogLevel.Information, $"[UtteranceCollector] в списке: {userTalk.Count} элементов");
+                }
+
+                if (userTalk.Count == 0) return;
+
                 _logger.LogInformation($"[UtteranceCollector] Начинаем сжатие {userTalk.Count} фреймов в MP3");
                 byte[] audio = await _encoder.ConvertPcmAsync(userTalk);
                 _logger.LogInformation($"[UtteranceCollector] Сжатие завершено. Получено {audio.Length} байт MP3.");
 
-                if (audio != null) await ((TalkCollected?.Invoke(session.UserId, session.ChannelId, audio)) ?? Task.CompletedTask);
+                if (audio != null) await ((TalkCollected?.Invoke(session.UserId, session.GuildId, audio)) ?? Task.CompletedTask);
 
             }
             catch (Exception ex)

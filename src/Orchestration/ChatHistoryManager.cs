@@ -5,24 +5,24 @@ namespace DiscordVoiceBotMark.src.Orchestration
 {
     public interface IChatHistoryManager
     {
-        public List<object> GetHistory(ulong channelId);
-        public void AddMessage(ulong channelId, string role, string content);
-        public void ClearHistory(ulong channelId);
+        public List<object> GetHistory(ulong guildId);
+        public void AddMessage(ulong guildId, string role, string content);
+        public void ClearHistory(ulong guildId);
     }
 
     internal sealed class ChatHistoryManager : IChatHistoryManager
     {
         private readonly ConcurrentDictionary<ulong, List<object>> _histories = new();
 
-        public List<object> GetHistory(ulong channelId)
+        public List<object> GetHistory(ulong guildId)
         {
             // if no history for channel - add new history
-            return _histories.GetOrAdd(channelId, _ => new List<object>());
+            return _histories.GetOrAdd(guildId, _ => new List<object>());
         }
 
-        public void AddMessage(ulong channelId, string role, string content)
+        public void AddMessage(ulong guildId, string role, string content)
         {
-            var history = GetHistory(channelId);
+            var history = GetHistory(guildId);
 
             lock (history) // protect from collision(if more than 1 user speaks at the same time)
             {
@@ -35,9 +35,9 @@ namespace DiscordVoiceBotMark.src.Orchestration
             }
         }
 
-        public void ClearHistory(ulong channelId)
+        public void ClearHistory(ulong guildId)
         {
-            _histories.TryRemove(channelId, out _);
+            _histories.TryRemove(guildId, out _);
         }
     }
 }

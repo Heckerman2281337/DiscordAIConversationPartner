@@ -22,15 +22,17 @@ namespace DiscordVoiceBotMark.src.Discord
             "Оооо понятно ребят, я пошёл"
         };
 
-        public VoiceChannelController(IVoiceCaptureService service, ILogger<VoiceChannelController> logger)
+        public VoiceChannelController(IVoiceCaptureService service, IVoiceSessionManager sessionManager,
+            ILogger<VoiceChannelController> logger)
         { 
             _service = service;
             _logger = logger;
+            _sessionManager = sessionManager;
         }
 
-        private IAudioClient? _audioClient;
         private readonly ILogger<VoiceChannelController> _logger;
         private readonly IVoiceCaptureService _service;
+        private readonly IVoiceSessionManager _sessionManager;
 
         public Task RegisterHandlersAsync(DiscordSocketClient client)
         {
@@ -88,9 +90,16 @@ namespace DiscordVoiceBotMark.src.Discord
                     return;
                 }
 
-                _audioClient = await author.VoiceChannel.ConnectAsync();
+                var guildId = author.Guild.Id;
+                //input audio
+                var audioClient = await author.VoiceChannel.ConnectAsync();
+                _sessionManager.SetAudioInputClient(guildId, audioClient);
 
-                await _service.StartListeningAsync(_audioClient);
+                //output audio
+                var outStream = audioClient.CreatePCMStream(AudioApplication.Voice);
+                _sessionManager.SetAudioOutputClient(guildId, outStream);
+
+                await _service.StartListeningAsync(audioClient);
             }
             catch (Exception ex)
             {

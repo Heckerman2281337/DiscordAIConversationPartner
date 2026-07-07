@@ -1,4 +1,5 @@
-﻿using DiscordVoiceBotMark.src.Discord;
+﻿using DiscordVoiceBotMark.src.Conversion;
+using DiscordVoiceBotMark.src.Discord;
 using DiscordVoiceBotMark.src.Orchestration;
 using DiscordVoiceBotMark.src.Pipeline;
 using DiscordVoiceBotMark.src.Voice;
@@ -15,6 +16,8 @@ namespace DiscordVoiceBotMark.src.Config
             services.AddSingleton<IVoiceCaptureService, VoiceCaptureService>();
             services.AddSingleton<IVoiceActivityDetector, VoiceActivityDetector>();
             services.AddSingleton<IChatHistoryManager, ChatHistoryManager>();
+            services.AddSingleton<IPcmStereoConverter, PcmStereoConverter>();
+            services.AddSingleton<IEncoder, Mp3Encoder>();
 
             services.AddHttpClient<ISpeechToTextService, SpeechToTextService>();
             services.AddHttpClient<ILlmService, LlmService>();

@@ -1,30 +1,30 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
+
 namespace DiscordVoiceBotMark.src.Conversion
 {
-
-    public interface IEncoder
+    public interface IPcmStereoConverter
     {
-        public Task<byte[]> ConvertPcmAsync(List<byte[]> pcm);
+        public Task<byte[]> ConvertToStereoAsync(byte[] data);
     }
-
-    internal sealed class Mp3Encoder : IEncoder
+    internal sealed class PcmStereoConverter : IPcmStereoConverter
     {
-        public Mp3Encoder(ILogger<Mp3Encoder> logger) 
-        { 
+        public PcmStereoConverter(ILogger<PcmStereoConverter> logger)
+        {
             _logger = logger;
         }
 
-        private readonly ILogger<Mp3Encoder> _logger;
-        public async Task<byte[]> ConvertPcmAsync(List<byte[]> pcm)
+        private readonly ILogger<PcmStereoConverter> _logger;
+        public async Task<byte[]> ConvertToStereoAsync(byte[] monoPcm)
         {
-            if (pcm == null || pcm.Count == 0) return Array.Empty<byte>();
+
+            if (monoPcm == null || monoPcm.Length == 0) return Array.Empty<byte>();
 
             var startInfo = new ProcessStartInfo()
             {
                 FileName = "ffmpeg",
-                Arguments = "-f s16le -ar 48000 -ac 2 -i pipe:0 -codec:a libmp3lame -b:a 128k -f mp3 pipe:1",
+                Arguments = "-f s16le -ar 48000 -ac 1 -i pipe:0 -f s16le -ar 48000 -ac 2 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
@@ -40,10 +40,7 @@ namespace DiscordVoiceBotMark.src.Conversion
             {
                 using var stdin = process.StandardInput.BaseStream;
 
-                foreach (var chunk in pcm)
-                {
-                    await stdin.WriteAsync(chunk, 0, chunk.Length);
-                }
+                await stdin.WriteAsync(monoPcm, 0, monoPcm.Length);
 
                 await stdin.FlushAsync();
             });
@@ -63,7 +60,7 @@ namespace DiscordVoiceBotMark.src.Conversion
             if (process.ExitCode != 0)
             {
                 var errorLog = await errorTask;
-                _logger.Log(LogLevel.Error, $"[Mp3Encoder] {errorLog}");
+                _logger.Log(LogLevel.Error, $"[PcmStereoConverter] {errorLog}");
             }
 
             return await readTask;

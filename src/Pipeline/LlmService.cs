@@ -1,6 +1,5 @@
 ﻿using DotNetEnv;
 using Microsoft.Extensions.Logging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Net.Http.Json;
 using System.Text.Json;
 
