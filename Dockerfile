@@ -24,23 +24,24 @@ FROM mcr.microsoft.com/dotnet/runtime:9.0 AS final
 
 WORKDIR /app
 
-# Runtime-зависимости для Discord voice / audio / native libs
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     libopus0 \
     libsodium23 \
     ffmpeg \
     curl \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Некоторые библиотеки ожидают имена без версии
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libopus.so.0 /usr/lib/x86_64-linux-gnu/libopus.so \
     && ln -sf /usr/lib/x86_64-linux-gnu/libsodium.so.23 /usr/lib/x86_64-linux-gnu/libsodium.so
 
-# libdave.so для Discord.Net
-RUN curl -fsSL https://github.com/discord-net/Discord.Net/releases/download/3.20.1/libdave.so -o /app/libdave.so \
-    || curl -fsSL https://github.com/discord-net/Discord.Net/releases/download/3.17.0/libdave.so -o /app/libdave.so \
-    && chmod 755 /app/libdave.so
+RUN set -eux; \
+    curl -fsSL "https://github.com/discord/libdave/releases/latest/download/libdave-Linux-X64-boringssl.zip" -o /tmp/libdave.zip; \
+    unzip -j /tmp/libdave.zip "libdave.so" -d /app || unzip -j /tmp/libdave.zip "*/libdave.so" -d /app; \
+    chmod 755 /app/libdave.so; \
+    rm -f /tmp/libdave.zip; \
+    test -f /app/libdave.so
 
 COPY --from=build /app/publish ./
 
