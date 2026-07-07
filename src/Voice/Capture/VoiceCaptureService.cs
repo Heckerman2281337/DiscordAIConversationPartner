@@ -105,7 +105,7 @@ namespace DiscordVoiceBotMark.src.Voice
                 try
                 {
                     var frame = await stream.ReadFrameAsync(cancellationToken);
-                    if (frame.Missed) continue;
+                    if (frame.Missed || frame.Payload.Length < 10) continue;
                     await voiceSession.OpusFrames.Writer.WriteAsync(frame.Payload, cancellationToken);
                     voiceSession.LastPackageUTC = DateTime.UtcNow;
                     voiceSession.IsSpeaking = true;

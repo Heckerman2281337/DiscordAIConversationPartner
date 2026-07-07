@@ -8,13 +8,12 @@ namespace DiscordVoiceBotMark.src.Orchestration
 
     internal sealed class UtteranceCollector
     {
-        public UtteranceCollector(ILogger<UtteranceCollector> logger, IEncoder encoder,
+        public UtteranceCollector(ILogger<UtteranceCollector> logger,
             IVoiceSessionManager sessionManager, IVoiceActivityDetector voiceDetector)
         {
             _logger = logger;
             _voiceActivityDetector= voiceDetector;
             _sessionManager= sessionManager;
-            _encoder = encoder;
 
             _voiceActivityDetector.SpeechEnded += OnSpeechEnded;
         }
@@ -23,7 +22,6 @@ namespace DiscordVoiceBotMark.src.Orchestration
         private readonly IVoiceActivityDetector _voiceActivityDetector;
         private readonly IVoiceSessionManager _sessionManager;
         private readonly ILogger<UtteranceCollector> _logger;
-        private readonly IEncoder _encoder;
 
         public event Func<ulong, ulong, byte[], Task>? TalkCollected;
 
@@ -39,29 +37,20 @@ namespace DiscordVoiceBotMark.src.Orchestration
 
             try
             {
-                List<byte[]> userTalk = new();
+                using var memoryStream = new MemoryStream();
 
                 short[] pcm = new short[1920]; // decoding goes by this formula: 48k * 0.02 sec * 2
                                                // 48k - standart discord frequency, 0.02 sec - standart discord frame, 2 - stereo 
 
                 while (session.OpusFrames.Reader.TryRead(out var frame))
                 {
-                    var decodedSamples = session.OpusDecoder.Decode(frame, pcm, 960);
-
-                    byte[] byteBuffer = new byte[3840]; // creating new byte buffer for sample
-                    Buffer.BlockCopy(pcm, 0, byteBuffer, 0, 3840);
-
-                    userTalk.Add(byteBuffer);
-                    _logger.Log(LogLevel.Information, $"[UtteranceCollector] в списке: {userTalk.Count} элементов");
+                    await memoryStream.WriteAsync(frame);
+                    _logger.Log(LogLevel.Information, $"[UtteranceCollector] в списке: {memoryStream.Length} элементов");
                 }
 
-                if (userTalk.Count == 0) return;
+                if (memoryStream.Length == 0) return;
 
-                _logger.LogInformation($"[UtteranceCollector] Начинаем сжатие {userTalk.Count} фреймов в MP3");
-                byte[] audio = await _encoder.ConvertPcmAsync(userTalk);
-                _logger.LogInformation($"[UtteranceCollector] Сжатие завершено. Получено {audio.Length} байт MP3.");
-
-                if (audio != null) await ((TalkCollected?.Invoke(session.UserId, session.GuildId, audio)) ?? Task.CompletedTask);
+                await ((TalkCollected?.Invoke(session.UserId, session.GuildId, memoryStream.ToArray())) ?? Task.CompletedTask);
 
             }
             catch (Exception ex)

@@ -17,9 +17,17 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.9" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
+    <PackageReference Include="NAudio" Version="2.3.0" />
+    <PackageReference Include="Whisper.net" Version="1.9.1" />
+    <PackageReference Include="Whisper.net.Runtime" Version="1.9.1" />
   </ItemGroup>
 
+	
+		
   <ItemGroup>
+    <None Update="Models\ggml-base.bin">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="nativeLibs\libdave.dll">
        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	   <Link>libdave.dll</Link>
@@ -32,6 +40,10 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<Link>opus.dll</Link>
     </None>
+	  <None Update=".env">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		  <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+	  </None>
   </ItemGroup>
 
 </Project>

@@ -14,6 +14,8 @@ namespace DiscordVoiceBotMark.src.Voice
         public void SetAudioOutputClient(ulong guildId, AudioOutStream client);
         public bool TryGetAudioOutputClient(ulong guildId, out AudioOutStream? client);
 
+        public void ClearGuildSession(ulong guildId);
+
         public IReadOnlyCollection<UserVoiceSession> AllSessions { get; } // To avoid modifying AllSession from anywehre
     }
 
@@ -39,6 +41,25 @@ namespace DiscordVoiceBotMark.src.Voice
         {
             if (_byUserId.TryRemove(userId, out var session))
                 session.Dispose();
+        }
+
+        public void ClearGuildSession(ulong guildId)
+        {
+            if (_audioOutputClientByGuildId.TryRemove(guildId, out var outStream))
+            {
+                try { outStream.Dispose(); } catch {}
+            }
+            _audioInputClientByGuildId.TryRemove(guildId, out _);
+
+            var usersInGuild = _byUserId
+                .Where(kvp => kvp.Value.GuildId == guildId)
+                .Select(kvp => kvp.Key)
+                .ToList();
+
+            foreach (var userId in usersInGuild)
+            {
+                Remove(userId);
+            }
         }
 
         public void SetAudioInputClient(ulong guildId, IAudioClient client)

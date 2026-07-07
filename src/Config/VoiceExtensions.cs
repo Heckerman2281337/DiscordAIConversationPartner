@@ -4,6 +4,8 @@ using DiscordVoiceBotMark.src.Orchestration;
 using DiscordVoiceBotMark.src.Pipeline;
 using DiscordVoiceBotMark.src.Voice;
 using Microsoft.Extensions.DependencyInjection;
+using System.Net;
+using Whisper.net;
 
 namespace DiscordVoiceBotMark.src.Config
 {
@@ -17,9 +19,15 @@ namespace DiscordVoiceBotMark.src.Config
             services.AddSingleton<IVoiceActivityDetector, VoiceActivityDetector>();
             services.AddSingleton<IChatHistoryManager, ChatHistoryManager>();
             services.AddSingleton<IPcmStereoConverter, PcmStereoConverter>();
-            services.AddSingleton<IEncoder, Mp3Encoder>();
+            services.AddSingleton<IWavConverter, WavConverter>();
 
-            services.AddHttpClient<ISpeechToTextService, SpeechToTextService>();
+            services.AddSingleton<ISpeechToTextService, SpeechToTextService>();
+
+            services.AddSingleton<WhisperFactory>(sp =>
+            {
+                return WhisperFactory.FromPath(Path.Combine(AppContext.BaseDirectory, "Models", "ggml-base.bin"));
+            });
+
             services.AddHttpClient<ILlmService, LlmService>();
             services.AddHttpClient<ITextToSpeechService, TextToSpeechService>();
             services.AddSingleton<IVoiceOutputService, VoiceOutputService>();

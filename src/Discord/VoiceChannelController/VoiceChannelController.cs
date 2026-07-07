@@ -43,33 +43,42 @@ namespace DiscordVoiceBotMark.src.Discord
 
         public Task UnregisterHandlersAsync(DiscordSocketClient client)
         {
-            throw new NotImplementedException();
+            client.MessageReceived -= OnMessageRecieved;
+            return Task.CompletedTask;
         }
 
         private Task OnMessageRecieved(SocketMessage message)
         {
             if (message.Author.IsBot) return Task.CompletedTask;
-            if (message.Content.StartsWith("!leave")) _ = LeaveVoiceChannelAsync(message);
-            if (message.Content.StartsWith("!join")) _ = JoinVoiceChannelAsync(message);
+            if (message.Content.StartsWith("!leave", StringComparison.OrdinalIgnoreCase)) _ = LeaveVoiceChannelAsync(message);
+            if (message.Content.StartsWith("!join", StringComparison.OrdinalIgnoreCase)) _ = JoinVoiceChannelAsync(message);
 
             return Task.CompletedTask;
         }
 
-        
-        // Fix leave logic
         private async Task LeaveVoiceChannelAsync(SocketMessage message)
         {
             var textChannel = message.Channel as SocketTextChannel;
-            if (textChannel == null) return;    
+            if (textChannel == null) return;
 
             var guild = textChannel.Guild;
             var botVoiceChannel = guild.CurrentUser.VoiceChannel;
-            int randomIndex = Random.Shared.Next(randomLeaveBotMessage.Count);
 
             if (botVoiceChannel != null)
             {
-                await botVoiceChannel.DisconnectAsync();
-                await textChannel.SendMessageAsync(randomLeaveBotMessage[randomIndex]);
+                try
+                {
+                    _sessionManager.ClearGuildSession(guild.Id);
+
+                    await botVoiceChannel.DisconnectAsync();
+
+                    int randomIndex = Random.Shared.Next(randomLeaveBotMessage.Count);
+                    await textChannel.SendMessageAsync(randomLeaveBotMessage[randomIndex]);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log(LogLevel.Error, $"[VoiceChannelController] Error while leaving: {ex.Message}");
+                }
             }
         }
 

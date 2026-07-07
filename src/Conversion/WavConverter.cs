@@ -4,27 +4,28 @@ using System.Diagnostics;
 namespace DiscordVoiceBotMark.src.Conversion
 {
 
-    public interface IEncoder
+    public interface IWavConverter
     {
-        public Task<byte[]> ConvertPcmAsync(List<byte[]> pcm);
+        public Task<byte[]> ConvertAsync(byte[] pcm);
     }
 
-    internal sealed class Mp3Encoder : IEncoder
+    internal sealed class WavConverter : IWavConverter
     {
-        public Mp3Encoder(ILogger<Mp3Encoder> logger) 
+        public WavConverter(ILogger<WavConverter> logger) 
         { 
             _logger = logger;
         }
 
-        private readonly ILogger<Mp3Encoder> _logger;
-        public async Task<byte[]> ConvertPcmAsync(List<byte[]> pcm)
+        private readonly ILogger<WavConverter> _logger;
+
+        public async Task<byte[]> ConvertAsync(byte[] pcm)
         {
-            if (pcm == null || pcm.Count == 0) return Array.Empty<byte>();
+            if (pcm == null || pcm.Length == 0) return Array.Empty<byte>();
 
             var startInfo = new ProcessStartInfo()
             {
                 FileName = "ffmpeg",
-                Arguments = "-f s16le -ar 48000 -ac 2 -i pipe:0 -codec:a libmp3lame -b:a 128k -f mp3 pipe:1",
+                Arguments = "-f s16le -ar 48000 -ac 2 -i pipe:0 -ar 16000 -ac 1 -c:a pcm_s16le -f wav pipe:1",
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
@@ -40,10 +41,7 @@ namespace DiscordVoiceBotMark.src.Conversion
             {
                 using var stdin = process.StandardInput.BaseStream;
 
-                foreach (var chunk in pcm)
-                {
-                    await stdin.WriteAsync(chunk, 0, chunk.Length);
-                }
+                await stdin.WriteAsync(pcm, 0, pcm.Length);
 
                 await stdin.FlushAsync();
             });
@@ -63,7 +61,7 @@ namespace DiscordVoiceBotMark.src.Conversion
             if (process.ExitCode != 0)
             {
                 var errorLog = await errorTask;
-                _logger.Log(LogLevel.Error, $"[Mp3Encoder] {errorLog}");
+                _logger.Log(LogLevel.Error, $"[WavConverter] {errorLog}");
             }
 
             return await readTask;

@@ -45,13 +45,15 @@ namespace DiscordVoiceBotMark.src.Pipeline
 
             var payload = new
             {
-                model = "meta-llama/llama-3-8b-instruct:free",
+                model = "openai/gpt-4.1-mini",
                 messages = messagesPayload
             };
 
             //HTTP requests
             var request = new HttpRequestMessage(HttpMethod.Post, _endpoint);
             request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
+            request.Headers.Add("X-Title", "DiscordVoiceBotMark");
+
             request.Content = JsonContent.Create(payload);
 
             HttpResponseMessage respones = await _httpClient.SendAsync(request);
