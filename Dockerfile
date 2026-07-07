@@ -45,6 +45,9 @@ COPY --from=build /app/publish .
 # Копируем Linux-версию libdave
 COPY nativeLibs/libdave.so ./libdave.so
 
+RUN ls -l /app/libdave.so && \
+    ldd /app/libdave.so
+
 ENV LD_LIBRARY_PATH=/app:/usr/lib:/usr/lib/x86_64-linux-gnu
 
 ENTRYPOINT ["dotnet", "DiscordVoiceBotMark.dll"]
