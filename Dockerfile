@@ -24,7 +24,7 @@ RUN dotnet publish "DiscordVoiceBotMark.csproj" \
 # =========================
 # Runtime
 # =========================
-FROM mcr.microsoft.com/dotnet/runtime:9.0
+FROM mcr.microsoft.com/dotnet/runtime:9.0-noble
 
 WORKDIR /app
 
