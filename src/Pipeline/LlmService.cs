@@ -45,7 +45,7 @@ namespace DiscordVoiceBotMark.src.Pipeline
 
             var payload = new
             {
-                model = "meta-llama/llama-3-8b-instruct:free",
+                model = "tencent/hy3:free",
                 messages = messagesPayload
             };
 
