@@ -69,6 +69,12 @@ namespace DiscordVoiceBotMark.src.Discord
             {
                 try
                 {
+                    if (_sessionManager.TryGetAudioInputClient(guild.Id, out var client))
+                    {
+                        if(client != null)
+                            await _service.StopListeningAsync(client);
+                    }
+
                     _sessionManager.ClearGuildSession(guild.Id);
 
                     await botVoiceChannel.DisconnectAsync();
