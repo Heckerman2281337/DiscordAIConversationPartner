@@ -58,13 +58,14 @@ namespace DiscordVoiceBotMark.src.Pipeline
 
     internal sealed class MockTTS : ITextToSpeechService
     {
-        public MockTTS(ILogger<MockTTS> logger)
+        public MockTTS(ILogger<MockTTS> logger, HttpClient client)
         {
             _logger = logger;
+            _httpClient = client;
         }
 
         private readonly ILogger<MockTTS> _logger;
-
+        private readonly HttpClient _httpClient; // Avoid crash
         public async Task<byte[]?> ExecuteTextToSpeechAsync(string aiAnswer)
         {
             if (string.IsNullOrWhiteSpace(aiAnswer)) return null;
