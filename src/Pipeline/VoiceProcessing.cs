@@ -60,11 +60,12 @@ namespace DiscordVoiceBotMark.src.Pipeline
 
             string formattedPromt = $"[{username}]: {userText}";
             _chatHistoryManager.AddMessage(guildId, "user", formattedPromt);
-
+            _logger.LogInformation($"[STT] {username} сказал: {userText}");
 
             var swLlm = Stopwatch.StartNew();
             var aiAnswer = await _llmService.ExecuteLlmAsync(_chatHistoryManager.GetHistory(guildId));
             swLlm.Stop();
+            _logger.LogInformation($"[LLM] ai ответил: {aiAnswer} мс");
             _logger.LogInformation($"[Timing] LLM занял: {swLlm.ElapsedMilliseconds} мс");
             if (string.IsNullOrWhiteSpace(aiAnswer)) return;
 

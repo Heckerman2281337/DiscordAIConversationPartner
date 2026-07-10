@@ -31,6 +31,7 @@ namespace DiscordVoiceBotMark.src.Pipeline
         private readonly string? _apiKey;
         private readonly string? _endpoint;
         private readonly string? _systemPromt; 
+
         public async Task<string?> ExecuteLlmAsync(List<object> history)
         {
             if(history == null || history.Count == 0) return null;

@@ -45,7 +45,7 @@ namespace DiscordVoiceBotMark.src.Orchestration
                 while (session.OpusFrames.Reader.TryRead(out var frame))
                 {
                     await memoryStream.WriteAsync(frame);
-                    _logger.Log(LogLevel.Information, $"[UtteranceCollector] в списке: {memoryStream.Length} элементов");
+                  //  _logger.Log(LogLevel.Information, $"[UtteranceCollector] в списке: {memoryStream.Length} элементов");
                 }
 
                 if (memoryStream.Length == 0) return;
