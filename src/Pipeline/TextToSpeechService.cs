@@ -4,9 +4,9 @@ using System.Net.Http.Json;
 
 namespace DiscordVoiceBotMark.src.Pipeline
 {
-    internal sealed class TextToSpeechService : ITextToSpeechService
+    internal sealed class FishAudioTTS : ITextToSpeechService
     {
-        public TextToSpeechService(HttpClient client, ILogger<TextToSpeechService> logger) 
+        public FishAudioTTS(HttpClient client, ILogger<FishAudioTTS> logger) 
         { 
             _httpClient = client;
             _logger = logger;
@@ -22,7 +22,7 @@ namespace DiscordVoiceBotMark.src.Pipeline
         }
 
         private readonly HttpClient _httpClient;
-        private readonly ILogger<TextToSpeechService> _logger;
+        private readonly ILogger<FishAudioTTS> _logger;
         private readonly string? _apiKey;
         private readonly string? _endpoint;
         private readonly string? _modelId;
@@ -54,5 +54,27 @@ namespace DiscordVoiceBotMark.src.Pipeline
 
             return await respones.Content.ReadAsByteArrayAsync();
         }
+    }
+
+    internal sealed class MockTTS : ITextToSpeechService
+    {
+        public MockTTS(ILogger<MockTTS> logger)
+        {
+            _logger = logger;
+        }
+
+        private readonly ILogger<MockTTS> _logger;
+
+        public async Task<byte[]?> ExecuteTextToSpeechAsync(string aiAnswer)
+        {
+            if (string.IsNullOrWhiteSpace(aiAnswer)) return null;
+
+            _logger.Log(LogLevel.Information, "[MockTTS] Имитация генерации голоса");
+
+            await Task.Delay(1500);
+
+            return new byte[192000];
+        }
+
     }
 }
