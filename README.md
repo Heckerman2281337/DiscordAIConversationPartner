@@ -13,7 +13,6 @@ Discord-бот на C# (.NET 9, Discord.Net), ведущий полноценн�
 - Discord.Net 3.20.1
 - Concentus — декодирование Opus → PCM в управляемом коде
 - Whisper (STT) и LLM
-- Fish Audio API — TTS с клонированным голосом
 
 ## Запуск
 
@@ -29,9 +28,7 @@ OPENROUTER_API_KEY=
 LLM_API_ENDPOINT=
 STT_API_ENDPOINT=
 BOT_SYSTEM_PROMPT=
-FISH_API_KEY=
 TTS_API_ENDPOINT=
-VOICE_ID=
 ```
 ### Команды в чате
 
@@ -40,8 +37,7 @@ VOICE_ID=
 
 ## Известные ограничения
 - Обработка нескольких говорящих одновременно (barge-in, очередь ответов) — в разработке
-- Лимит параллельных запросов к Fish Audio (5) пока не реализован
-
+- 
 ## Docker
 
 В проекте есть `Dockerfile` для деплоя на Linux. Для голосового функционала контейнеру нужны системные библиотеки `libopus0`, `libsodium23` и `ffmpeg` — см. `Dockerfile` в корне проекта.
