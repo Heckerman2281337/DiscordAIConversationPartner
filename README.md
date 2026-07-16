@@ -1,27 +1,24 @@
 # DiscordVoiceBot
 
-Discord-бот на C# (.NET 9, Discord.Net), ведущий полноценный голосовой диалог (Voice-to-Voice) в голосовом канале: слушает участников, распознаёт речь, генерирует ответ через LLM и озвучивает его склонированным голосом.
+A C# (.NET 9, Discord.Net) Discord bot capable of maintaining a full Voice-to-Voice dialogue in a voice channel. It listens to participants, recognizes speech, generates a response via an LLM, and speaks it out using a cloned voice.
 
-> ⚠️ Проект в активной разработке. Часть пайплайна (воспроизведение ответа в голосовом канале) пока не реализована.
+> Note: This project is in active development. Part of the pipeline (playing back the response in the voice channel) is not yet implemented.
 
-## Как это работает
-Голосовой канал (Discord) ➔ VoiceCaptureService (RTP/Opus, per-user) ➔ VoiceActivityDetector (тишина > 1.2с) ➔ UtteranceCollector (Opus ➔ PCM) ➔ SpeechToTextService (Whisper) ➔ ChatHistoryManager (история) ➔ LlmService (LLM/OpenRouter) ➔ TextToSpeechService (Fish Audio) ➔ VoiceOutputService (стриминг PCM в канал)
-
-## Стек
-
+## How It Works
+Voice channel (Discord) ➔ VoiceCaptureService (RTP/Opus, per-user) ➔ VoiceActivityDetector (silence > 1.2s) ➔ UtteranceCollector (Opus ➔ PCM) ➔ SpeechToTextService (Whisper) ➔ ChatHistoryManager (history) ➔ LlmService (LLM/OpenRouter) ➔ TextToSpeechService (Fish Audio) ➔ VoiceOutputService (streaming PCM to the channel)
+## Tech Stack
 - .NET 9 / C#
 - Discord.Net 3.20.1
-- Concentus — декодирование Opus → PCM в управляемом коде
-- Whisper (STT) и LLM
+- Concentus — decoding Opus → PCM in managed code
+- Whisper (STT) and LLMs
+## Running the Bot
 
-## Запуск
-
-### Требования
+### Requirements
 - .NET 9 SDK
-- Токен Discord-бота с включённым **Message Content Intent** и правами `Connect`, `Speak`, `Send Messages`, `View Channels` в приглашении
+- A Discord bot token with the Message Content Intent enabled, and an invite link with Connect, Speak, Send Messages, and View Channels permissions.
 
-### Переменные окружения (`.env` в корне проекта)
-
+### Environment Variables
+Create a .env file in the root of the project:
 ```
 BOT_TOKEN=
 OPENROUTER_API_KEY=
@@ -30,14 +27,12 @@ STT_API_ENDPOINT=
 BOT_SYSTEM_PROMPT=
 TTS_API_ENDPOINT=
 ```
-### Команды в чате
+### Chat Commands
 
-- `!join` — бот заходит в голосовой канал, где сейчас находится автор сообщения
-- `!leave` — бот выходит из голосового канала
+- `!join` — the bot joins the voice channel where the message author is currently located.
+- `!leave` — the bot leaves the voice channel.
 
-## Известные ограничения
-- Обработка нескольких говорящих одновременно (barge-in, очередь ответов) — в разработке
-- 
+## Known Limitations
+- Handling multiple speakers simultaneously (barge-in, response queuing) is currently in development.
 ## Docker
-
-В проекте есть `Dockerfile` для деплоя на Linux. Для голосового функционала контейнеру нужны системные библиотеки `libopus0`, `libsodium23` и `ffmpeg` — см. `Dockerfile` в корне проекта.
+The project includes a Dockerfile for Linux deployment. To support voice functionality, the container requires the following system libraries: libopus0, libsodium23, and ffmpeg. See the Dockerfile in the project root for details.
