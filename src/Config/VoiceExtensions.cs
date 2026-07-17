@@ -4,7 +4,6 @@ using DiscordVoiceBotMark.src.Orchestration;
 using DiscordVoiceBotMark.src.Pipeline;
 using DiscordVoiceBotMark.src.Voice;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 using Whisper.net;
 
 namespace DiscordVoiceBotMark.src.Config
@@ -88,7 +87,7 @@ namespace DiscordVoiceBotMark.src.Config
             });
 
             services.AddHttpClient<ILlmService, LlmService>();
-            services.AddHttpClient<ITextToSpeechService, MockTTS>();
+            services.AddHttpClient<ITextToSpeechService, XttsService>();
             services.AddSingleton<IVoiceOutputService, VoiceOutputService>();
 
 

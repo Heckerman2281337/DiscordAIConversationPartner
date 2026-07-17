@@ -22,7 +22,7 @@ namespace DiscordVoiceBotMark.src.Pipeline
         public async Task PlayAudioAsync(ulong userId, byte[] data)
         {
             _sessionManager.TryGetByUserId(userId, out var session);
-            if(session == null)
+            if (session == null)
             {
                 _logger.Log(LogLevel.Error, $"[VoiceOutputService] нет сессии для юзера: {userId}");
                 return;
@@ -31,16 +31,34 @@ namespace DiscordVoiceBotMark.src.Pipeline
             var guildId = session.GuildId;
 
             _sessionManager.TryGetAudioOutputClient(guildId, out var outputStream);
-            if(outputStream == null)
+            if (outputStream == null)
             {
                 _logger.Log(LogLevel.Error, $"[VoiceOutputService] output stream null для гильдии: {guildId}");
                 return;
             }
 
             var stereo = await _converter.ConvertToStereoAsync(data);
+            if (stereo == null || stereo.Length == 0) return;
 
-            await outputStream.WriteAsync(stereo);
-            await outputStream.FlushAsync();
+            const int frameSize = 3840; // 20 ms
+
+            try
+            {
+                for (int offset = 0; offset < stereo.Length; offset += frameSize)
+                {
+                    int bytesToWrite = Math.Min(frameSize, stereo.Length - offset);
+
+                    await outputStream.WriteAsync(stereo, offset, bytesToWrite);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(LogLevel.Error, $"[VoiceOutputService] Ошибка при отправке аудио в Discord: {ex.Message}");
+            }
+            finally
+            {
+                await outputStream.FlushAsync();
+            }
         }
     }
 }

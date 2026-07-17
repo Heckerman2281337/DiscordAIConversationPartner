@@ -10,6 +10,8 @@ obj/
 
 # Secrets
 .env
+*.env
+appsettings.json
 
 # Logs
 *.log
@@ -27,3 +29,15 @@ uploads/
 Thumbs.db
 Desktop.iniModels/ggml-base.bin
 Models/ggml-base.bin
+
+# Python virtual env
+**/xtts_env/
+**/localTts/xtts_env/
+localTts/xtts_models/
+*.pth
+
+# Audio samples
+**/localTts/*.wav
+
+# AI Models
+**/tts_models/

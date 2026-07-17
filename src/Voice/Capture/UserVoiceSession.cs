@@ -35,16 +35,25 @@ namespace DiscordVoiceBotMark.src.Voice
         //Dispose when user leaves channel
         public void Dispose()
         {
-            ReadLoopCts.Cancel();
-            ReadLoopCts.Dispose();
+            CancelSafely(ReadLoopCts);
+            CancelSafely(ProccessingCts);
+            CancelSafely(CurrentStreamCts);
 
-            ProccessingCts?.Cancel();
-            ProccessingCts?.Dispose();
-
-            CurrentStreamCts?.Cancel();
-            CurrentStreamCts?.Dispose();
+            DisposeSafely(ReadLoopCts);
+            DisposeSafely(ProccessingCts);
+            DisposeSafely(CurrentStreamCts);
 
             OpusFrames.Writer.TryComplete();
+        }
+
+        private void CancelSafely(CancellationTokenSource? cts)
+        {
+            try { cts?.Cancel(); } catch (ObjectDisposedException) { }
+        }
+
+        private void DisposeSafely(CancellationTokenSource? cts)
+        {
+            try { cts?.Dispose(); } catch (ObjectDisposedException) { }
         }
     }
 }
