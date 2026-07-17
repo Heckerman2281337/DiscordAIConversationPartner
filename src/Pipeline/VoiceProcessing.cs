@@ -17,6 +17,8 @@ namespace DiscordVoiceBotMark.src.Pipeline
             _chatHistoryManager = chatHistoryManager;
             _logger = logger;
 
+            _logger.LogCritical("!!! КОНСТРУКТОР VOICEPROCESSING ВЫЗВАН !!!");
+
         }
 
         private readonly ISpeechToTextService _speechToTextService;
@@ -39,49 +41,83 @@ namespace DiscordVoiceBotMark.src.Pipeline
             {360708126124670976, "Илья Лучов" },
             {831916416592379914, "Паша" },
             {762304407546494997, "Кэзбек" },
-            {1180964704856846457, "Илья васдаф" }
+            {1180964704856846457, "Илья васдаф" },
+            {358608717911949312, "Саша Марченко" }
         };
 
 
         public async Task ExecutePipelineAsync(ulong userId, ulong guildId, byte[] inputAudio)
         {
-            var sw = Stopwatch.StartNew();
+            try 
+            {
+                var sw = Stopwatch.StartNew();
 
+                //STT
+                var userText = await _speechToTextService.ExecuteSpeechToTextAsync(inputAudio);
+                if (string.IsNullOrWhiteSpace(userText)) return;
 
-            var swStt = Stopwatch.StartNew();
-            var userText = await _speechToTextService.ExecuteSpeechToTextAsync(inputAudio);
-            swStt.Stop();
-            _logger.LogInformation($"[Timing] STT занял: {swStt.ElapsedMilliseconds} мс");
+                string username = _names.TryGetValue(userId, out var name) ? name : $"Юзер_{userId}";
+                string formattedPromt = $"[{username}]: {userText}";
 
-            if (string.IsNullOrWhiteSpace(userText)) return;
+                _chatHistoryManager.AddMessage(guildId, "user", formattedPromt);
+                _logger.LogInformation($"[STT] {username} сказал: {userText}");
 
-            
-            string username = _names.TryGetValue(userId, out var name) ? name : $"Юзер_{userId}";
+                // LLM and TTS
+                var history = _chatHistoryManager.GetHistory(guildId);
+                await ProcessLlmStreamAndPlayAsync(history, userId, guildId);
 
-            string formattedPromt = $"[{username}]: {userText}";
-            _chatHistoryManager.AddMessage(guildId, "user", formattedPromt);
-            _logger.LogInformation($"[STT] {username} сказал: {userText}");
+                sw.Stop();
+                _logger.LogInformation($"[Timing] Общее время цикла: {sw.ElapsedMilliseconds} мс");
 
-            var swLlm = Stopwatch.StartNew();
-            var aiAnswer = await _llmService.ExecuteLlmAsync(_chatHistoryManager.GetHistory(guildId));
-            swLlm.Stop();
-            _logger.LogInformation($"[LLM] ai ответил: {aiAnswer} мс");
-            _logger.LogInformation($"[Timing] LLM занял: {swLlm.ElapsedMilliseconds} мс");
-            if (string.IsNullOrWhiteSpace(aiAnswer)) return;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"!!! КРИТИЧЕСКАЯ ОШИБКА В ПАЙПЛАЙНЕ: {ex.Message} \n {ex.StackTrace}");
+            }
+        }
 
+        private async Task ProcessLlmStreamAndPlayAsync(List<object> history, ulong userId, ulong guildId)
+        {
+            _logger.LogInformation($"[DEBUG] ProcessLlmStreamAndPlayAsync");
+            var sentenceBuffer = new System.Text.StringBuilder();
+            var fullAiAnswer = new System.Text.StringBuilder(); 
 
-            _chatHistoryManager.AddMessage(guildId, "assistant", aiAnswer);
+            await foreach (var token in _llmService.ExecuteLlmAsync(history))
+            {
+                _logger.LogInformation($"[DEBUG] Токен: '{token}'");
+                sentenceBuffer.Append(token);
+                fullAiAnswer.Append(token);
 
-            var swTts = Stopwatch.StartNew();
-            var outputAudio = await _textToSpeechService.ExecuteTextToSpeechAsync(aiAnswer);
-            swTts.Stop();
-            _logger.LogInformation($"[Timing] TTS занял: {swTts.ElapsedMilliseconds} мс");
-            if (outputAudio == null || outputAudio.Length == 0) return;
+                if (token.Contains('.') || token.Contains('!') || token.Contains('?') || token.Contains('\n'))
+                {
+                    var sentence = sentenceBuffer.ToString().Trim();
 
-            sw.Stop();
-            _logger.LogInformation($"[Timing] Общее время от получения аудио до готовности к проигрыванию: {sw.ElapsedMilliseconds} мс");
+                    if (!string.IsNullOrWhiteSpace(sentence))
+                    {
+                        await ProcessAndPlaySentenceAsync(sentence, userId);
+                    }
+                    sentenceBuffer.Clear();
+                }
+            }
 
-            await _voiceOutputService.PlayAudioAsync(userId, outputAudio);
+            if (sentenceBuffer.Length > 0)
+            {
+                await ProcessAndPlaySentenceAsync(sentenceBuffer.ToString().Trim(), userId);
+            }
+
+            _chatHistoryManager.AddMessage(guildId, "assistant", fullAiAnswer.ToString());
+        }
+
+        private async Task ProcessAndPlaySentenceAsync(string sentence, ulong userId)
+        {
+            _logger.LogInformation($"[TTS] Озвучка: {sentence}");
+            var outputAudio = await _textToSpeechService.ExecuteTextToSpeechAsync(sentence);
+
+            if (outputAudio != null && outputAudio.Length > 0)
+            {
+                _logger.LogInformation($"[TTS] Аудио успешно сгенерировано ({outputAudio.Length} байт), отправляю в Discord...");
+                await _voiceOutputService.PlayAudioAsync(userId, outputAudio);
+            }
         }
     }
 }

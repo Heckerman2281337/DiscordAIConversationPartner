@@ -47,6 +47,11 @@ namespace DiscordVoiceBotMark.src.Voice
         //if user starts talking
         private Task OnStreamCreatedAsync(ulong userId, AudioInStream stream)
         {
+            if (userId == _discordClient.CurrentUser.Id)
+            {
+                return Task.CompletedTask;
+            }
+
             var id = _discordClient.Guilds
                 .Select(g => g.GetUser(userId))
                 .FirstOrDefault(u => u?.VoiceChannel != null);
@@ -76,7 +81,12 @@ namespace DiscordVoiceBotMark.src.Voice
         }
         //if user mute himself
         private Task OnStreamDestroyedAsync(ulong userId)
-        {   
+        {
+            if (userId == _discordClient.CurrentUser.Id)
+            {
+                return Task.CompletedTask;
+            }
+
             _sessionManager.TryGetByUserId(userId, out var session);
 
             if(session == null)

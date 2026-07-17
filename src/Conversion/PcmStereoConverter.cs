@@ -16,15 +16,15 @@ namespace DiscordVoiceBotMark.src.Conversion
         }
 
         private readonly ILogger<PcmStereoConverter> _logger;
-        public async Task<byte[]> ConvertToStereoAsync(byte[] monoPcm)
+        public async Task<byte[]> ConvertToStereoAsync(byte[] wavData)
         {
 
-            if (monoPcm == null || monoPcm.Length == 0) return Array.Empty<byte>();
+            if (wavData == null || wavData.Length == 0) return Array.Empty<byte>();
 
             var startInfo = new ProcessStartInfo()
             {
                 FileName = "ffmpeg",
-                Arguments = "-f s16le -ar 48000 -ac 1 -i pipe:0 -f s16le -ar 48000 -ac 2 pipe:1",
+                Arguments = "-f wav -i pipe:0 -f s16le -ar 48000 -ac 2 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
@@ -40,7 +40,7 @@ namespace DiscordVoiceBotMark.src.Conversion
             {
                 using var stdin = process.StandardInput.BaseStream;
 
-                await stdin.WriteAsync(monoPcm, 0, monoPcm.Length);
+                await stdin.WriteAsync(wavData, 0, wavData.Length);
 
                 await stdin.FlushAsync();
             });
@@ -61,6 +61,7 @@ namespace DiscordVoiceBotMark.src.Conversion
             {
                 var errorLog = await errorTask;
                 _logger.Log(LogLevel.Error, $"[PcmStereoConverter] {errorLog}");
+                return Array.Empty<byte>();
             }
 
             return await readTask;

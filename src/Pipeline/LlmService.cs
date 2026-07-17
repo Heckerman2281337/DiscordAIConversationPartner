@@ -12,12 +12,21 @@ namespace DiscordVoiceBotMark.src.Pipeline
             _httpClient = client;
             _logger = logger;
 
-            _apiKey = Environment.GetEnvironmentVariable("OPENROUTER_API_KEY");
-            if (_apiKey == null) _logger.Log(LogLevel.Error, $"[LlmService] Нет api для openrouter");
 
             _endpoint = Environment.GetEnvironmentVariable("LLM_API_ENDPOINT");
-            if (_endpoint == null) _logger.Log(LogLevel.Error, $"[LlmService] Нет endpoint для openrouter");
-
+            if (_endpoint == null )
+            {
+                _logger.Log(LogLevel.Error, $"[LlmService] Нет LLM_API_ENDPOINT");
+                return;
+            }
+            
+            _modelName = Environment.GetEnvironmentVariable("LLM_MODEL_NAME");
+            if ( _modelName == null )
+            {
+                _modelName = "qwen2:1.5b";
+                _logger.Log(LogLevel.Warning, $"[LlmService] Нет LLM_MODEL_NAME, использую дефолтную: {_modelName}");
+            }
+                
             _systemPromt = Environment.GetEnvironmentVariable("BOT_SYSTEM_PROMPT");
             if (_systemPromt == null)
             {
@@ -28,13 +37,13 @@ namespace DiscordVoiceBotMark.src.Pipeline
 
         private readonly HttpClient _httpClient;
         private readonly ILogger<LlmService> _logger;
-        private readonly string? _apiKey;
         private readonly string? _endpoint;
+        private readonly string? _modelName;
         private readonly string? _systemPromt; 
 
-        public async Task<string?> ExecuteLlmAsync(List<object> history)
+        public async IAsyncEnumerable<string> ExecuteLlmAsync(List<object> history)
         {
-            if(history == null || history.Count == 0) return null;
+            if(history == null || history.Count == 0) yield break;
 
             //data for API
             var messagesPayload = new List<object>
@@ -46,43 +55,79 @@ namespace DiscordVoiceBotMark.src.Pipeline
 
             var payload = new
             {
-                model = "tencent/hy3:free",
-                messages = messagesPayload
+                model = _modelName,
+                messages = messagesPayload,
+                stream = true,
+                max_tokens = 20,
+                stop = new[] { "\n\n", "Паша:", "Миша:" },
+                options = new
+                {
+                    temperature = 0.9,
+                    num_ctx = 1024,
+                },
             };
 
             //HTTP requests
             var request = new HttpRequestMessage(HttpMethod.Post, _endpoint);
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _apiKey);
-            request.Headers.Add("X-Title", "DiscordVoiceBotMark");
-
             request.Content = JsonContent.Create(payload);
 
-            HttpResponseMessage respones = await _httpClient.SendAsync(request);
+            using var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
 
-            if (!respones.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                string errorLog = await respones.Content.ReadAsStringAsync();
+                string errorLog = await response.Content.ReadAsStringAsync();
                 _logger.Log(LogLevel.Error, $"[LlmService] {errorLog}");
-                return null;
+                yield break;
             }
 
-            using JsonDocument document = await JsonDocument.ParseAsync(await respones.Content.ReadAsStreamAsync());
+            using var stream = await response.Content.ReadAsStreamAsync();
+            using var reader  = new StreamReader(stream);
 
-            if (document.RootElement.TryGetProperty("choices", out JsonElement choicesElement) &&
-                choicesElement.GetArrayLength() > 0)
+            while(!reader.EndOfStream)
             {
-                JsonElement firstChoice = choicesElement[0];
+                var line = await reader.ReadLineAsync();
 
-                if (firstChoice.TryGetProperty("message", out JsonElement messageElement))
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                if (line.StartsWith("data: ")) line = line.Substring(6);
+                if (line.Trim() == "[DATA]") break;
+
+                string? textToYield = null;
+
+                try
                 {
-                    if(messageElement.TryGetProperty("content", out JsonElement contentElement))
+                    using var doc = JsonDocument.Parse(line);
+                    var root = doc.RootElement;
+
+                    if (root.TryGetProperty("choices", out var choices) &&
+                        choices.GetArrayLength() > 0)
                     {
-                        return contentElement.GetString();
+                        var firstChoice = choices[0];
+                        if (firstChoice.TryGetProperty("delta", out var delta) &&
+                            delta.TryGetProperty("content", out var content))
+                        {
+                            var text = content.GetString();
+                            if (!string.IsNullOrEmpty(text))
+                            {
+                                textToYield = text; 
+                            }
+                        }
+
+                        if (firstChoice.TryGetProperty("finish_reason", out var finishReason) &&
+                            finishReason.ValueKind != JsonValueKind.Null)
+                        {
+                            break;
+                        }
                     }
                 }
-            }
+                catch (JsonException ex) 
+                {
+                    _logger.LogWarning($"[LlmService] Ошибка парсинга JSON: {ex.Message}. Строка: {line}");
+                    continue; 
+                }
 
-            return null;
+                if (!string.IsNullOrWhiteSpace(textToYield)) yield return textToYield;
+
+            }
         }
     }
 }

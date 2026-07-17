@@ -39,8 +39,6 @@ namespace DiscordVoiceBotMark.src.Pipeline
                 builder.Append(wavSegment.Text);
             }
 
-            _logger.LogInformation($"user сказал: {builder.ToString()}");
-
             return builder.ToString().Trim();
         }
     }
