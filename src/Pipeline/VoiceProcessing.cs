@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace DiscordVoiceBotMark.src.Pipeline
+namespace DiscordVoiceBotMark.Pipeline
 {
     internal sealed class VoiceProcessing
     {

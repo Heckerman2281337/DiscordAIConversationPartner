@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Text.Json;
 
-namespace DiscordVoiceBotMark.src.Pipeline
+namespace DiscordVoiceBotMark.Pipeline
 {
     internal sealed class LlmService : ILlmService
     {
@@ -59,7 +59,7 @@ namespace DiscordVoiceBotMark.src.Pipeline
                 messages = messagesPayload,
                 stream = true,
                 max_tokens = 15,
-                temperature = 0.2
+                temperature = 0.4
             };
             //HTTP requests
             var request = new HttpRequestMessage(HttpMethod.Post, _endpoint);

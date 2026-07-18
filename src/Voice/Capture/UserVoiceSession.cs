@@ -1,6 +1,6 @@
 ﻿using System.Threading.Channels;
 
-namespace DiscordVoiceBotMark.src.Voice
+namespace DiscordVoiceBotMark.Voice
 {
     //saves state of each user in voice channel
     public sealed class UserVoiceSession : IDisposable

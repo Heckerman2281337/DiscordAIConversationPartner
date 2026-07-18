@@ -2,7 +2,7 @@
 using Discord.Audio;
 using Discord.WebSocket;
 
-namespace DiscordVoiceBotMark.src.Voice
+namespace DiscordVoiceBotMark.Voice
 {
     internal interface IVoiceCaptureService
     {

@@ -3,7 +3,7 @@ using Discord.WebSocket;
 using Discord;
 using Microsoft.Extensions.DependencyInjection;
 using DotNetEnv;
-using DiscordVoiceBotMark.src.Config;
+using DiscordVoiceBotMark.Config;
 
 namespace DiscordVoiceBotMark.src.Voice
 {

@@ -2,7 +2,7 @@
 using System.Diagnostics;
 
 
-namespace DiscordVoiceBotMark.src.Conversion
+namespace DiscordVoiceBotMark.Conversion
 {
     public interface IPcmStereoConverter
     {

@@ -1,4 +1,4 @@
-﻿using DiscordVoiceBotMark.src.Voice;
+﻿using DiscordVoiceBotMark.Voice;
 using Microsoft.Extensions.Logging;
 
 namespace DiscordVoiceBotMark.Orchestration

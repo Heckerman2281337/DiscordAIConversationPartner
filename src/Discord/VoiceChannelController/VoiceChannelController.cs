@@ -1,11 +1,11 @@
 ﻿using Discord;
 using Discord.Audio;
 using Discord.WebSocket;
-using DiscordVoiceBotMark.src.Voice;
+using DiscordVoiceBotMark.Voice;
 using Microsoft.Extensions.Logging;
 using System.Runtime.InteropServices;
 
-namespace DiscordVoiceBotMark.src.Discord
+namespace DiscordVoiceBotMark.Discord
 {
 
     internal interface IVoiceChannelController
