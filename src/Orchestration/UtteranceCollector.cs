@@ -1,9 +1,7 @@
-﻿using Discord.Audio;
-using DiscordVoiceBotMark.src.Conversion;
-using DiscordVoiceBotMark.src.Voice;
+﻿using DiscordVoiceBotMark.src.Voice;
 using Microsoft.Extensions.Logging;
 
-namespace DiscordVoiceBotMark.src.Orchestration
+namespace DiscordVoiceBotMark.Orchestration
 {
 
     internal sealed class UtteranceCollector

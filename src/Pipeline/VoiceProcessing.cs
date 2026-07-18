@@ -1,5 +1,6 @@
-﻿using DiscordVoiceBotMark.src.Orchestration;
+﻿using DiscordVoiceBotMark.Orchestration;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace DiscordVoiceBotMark.src.Pipeline
@@ -27,6 +28,9 @@ namespace DiscordVoiceBotMark.src.Pipeline
         private readonly IVoiceOutputService _voiceOutputService;
         private readonly IChatHistoryManager _chatHistoryManager;
         private readonly ILogger<VoiceProcessing> _logger;
+        
+        // Seperate queue for each guild
+        private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _guildLocks = new();
         //From id to names
         private readonly Dictionary<ulong, string> _names = new()
         {
@@ -48,6 +52,9 @@ namespace DiscordVoiceBotMark.src.Pipeline
 
         public async Task ExecutePipelineAsync(ulong userId, ulong guildId, byte[] inputAudio)
         {
+            var guildLock = _guildLocks.GetOrAdd(guildId, _ => new SemaphoreSlim(1, 1));
+
+            await guildLock.WaitAsync();
             try 
             {
                 var sw = Stopwatch.StartNew();
@@ -73,6 +80,10 @@ namespace DiscordVoiceBotMark.src.Pipeline
             catch (Exception ex)
             {
                 _logger.LogCritical($"!!! КРИТИЧЕСКАЯ ОШИБКА В ПАЙПЛАЙНЕ: {ex.Message} \n {ex.StackTrace}");
+            }
+            finally
+            {
+                guildLock.Release();
             }
         }
 

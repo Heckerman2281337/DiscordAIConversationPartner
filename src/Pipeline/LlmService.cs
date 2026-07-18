@@ -48,7 +48,7 @@ namespace DiscordVoiceBotMark.src.Pipeline
             //data for API
             var messagesPayload = new List<object>
             {
-                new { role = "system", content = _systemPromt! }
+                new { role = "system", content = _systemPromt }
             };
 
             messagesPayload.AddRange(history);
@@ -58,15 +58,9 @@ namespace DiscordVoiceBotMark.src.Pipeline
                 model = _modelName,
                 messages = messagesPayload,
                 stream = true,
-                max_tokens = 20,
-                stop = new[] { "\n\n", "Паша:", "Миша:" },
-                options = new
-                {
-                    temperature = 0.9,
-                    num_ctx = 1024,
-                },
+                max_tokens = 15,
+                temperature = 0.2
             };
-
             //HTTP requests
             var request = new HttpRequestMessage(HttpMethod.Post, _endpoint);
             request.Content = JsonContent.Create(payload);

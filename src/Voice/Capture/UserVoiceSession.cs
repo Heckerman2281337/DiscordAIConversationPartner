@@ -23,7 +23,6 @@ namespace DiscordVoiceBotMark.src.Voice
         public CancellationTokenSource? CurrentStreamCts { get; set;}
 
         
-
         //Channel to avoid thread-like errors
         public Channel<byte[]> OpusFrames { get; } = Channel.CreateUnbounded<byte[]>(
             new UnboundedChannelOptions

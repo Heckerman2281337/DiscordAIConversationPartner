@@ -1,6 +1,6 @@
 ﻿using Discord.WebSocket;
 using DiscordVoiceBotMark.src.Discord;
-using DiscordVoiceBotMark.src.Orchestration;
+using DiscordVoiceBotMark.Orchestration;
 using DiscordVoiceBotMark.src.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

@@ -1,6 +1,6 @@
 ﻿using DiscordVoiceBotMark.src.Conversion;
 using DiscordVoiceBotMark.src.Discord;
-using DiscordVoiceBotMark.src.Orchestration;
+using DiscordVoiceBotMark.Orchestration;
 using DiscordVoiceBotMark.src.Pipeline;
 using DiscordVoiceBotMark.src.Voice;
 using Microsoft.Extensions.DependencyInjection;
