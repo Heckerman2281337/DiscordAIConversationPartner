@@ -1,7 +1,7 @@
 ﻿using Discord.Audio;
 using System.Collections.Concurrent;
 
-namespace DiscordVoiceBotMark.src.Voice
+namespace DiscordVoiceBotMark.Voice
 {
     //For DI
     internal interface IVoiceSessionManager

@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 
-namespace DiscordVoiceBotMark.src.Pipeline
+namespace DiscordVoiceBotMark.Pipeline
 {
     internal sealed class XttsService : ITextToSpeechService
     {

@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using Whisper.net;
 using NAudio.Wave;
-using DiscordVoiceBotMark.src.Conversion;
+using DiscordVoiceBotMark.Conversion;
 using System.Text;
 
-namespace DiscordVoiceBotMark.src.Pipeline
+namespace DiscordVoiceBotMark.Pipeline
 {
     internal sealed class SpeechToTextService : ISpeechToTextService
     {

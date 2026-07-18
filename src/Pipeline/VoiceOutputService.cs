@@ -1,9 +1,9 @@
 ﻿using Discord.Audio;
-using DiscordVoiceBotMark.src.Conversion;
-using DiscordVoiceBotMark.src.Voice;
+using DiscordVoiceBotMark.Conversion;
+using DiscordVoiceBotMark.Voice;
 using Microsoft.Extensions.Logging;
 
-namespace DiscordVoiceBotMark.src.Pipeline
+namespace DiscordVoiceBotMark.Pipeline
 {
     internal sealed class VoiceOutputService : IVoiceOutputService
     {

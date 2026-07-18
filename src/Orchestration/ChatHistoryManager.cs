@@ -1,7 +1,7 @@
 ﻿
 using System.Collections.Concurrent;
 
-namespace DiscordVoiceBotMark.src.Orchestration
+namespace DiscordVoiceBotMark.Orchestration
 {
     public interface IChatHistoryManager
     {

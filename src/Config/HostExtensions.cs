@@ -1,11 +1,11 @@
 ﻿using Discord.WebSocket;
-using DiscordVoiceBotMark.src.Discord;
-using DiscordVoiceBotMark.src.Orchestration;
-using DiscordVoiceBotMark.src.Pipeline;
+using DiscordVoiceBotMark.Discord;
+using DiscordVoiceBotMark.Orchestration;
+using DiscordVoiceBotMark.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace DiscordVoiceBotMark.src.Config
+namespace DiscordVoiceBotMark.Config
 {
     internal static class HostExtensions
     {

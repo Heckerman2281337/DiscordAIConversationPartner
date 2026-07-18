@@ -1,5 +1,5 @@
 ﻿
-namespace DiscordVoiceBotMark.src.Voice
+namespace DiscordVoiceBotMark.Voice 
 {
     public interface IVoiceActivityDetector
     {

@@ -1,12 +1,12 @@
-﻿using DiscordVoiceBotMark.src.Conversion;
-using DiscordVoiceBotMark.src.Discord;
-using DiscordVoiceBotMark.src.Orchestration;
-using DiscordVoiceBotMark.src.Pipeline;
+﻿using DiscordVoiceBotMark.Conversion;
+using DiscordVoiceBotMark.Discord;
+using DiscordVoiceBotMark.Orchestration;
+using DiscordVoiceBotMark.Pipeline;
 using DiscordVoiceBotMark.src.Voice;
 using Microsoft.Extensions.DependencyInjection;
 using Whisper.net;
 
-namespace DiscordVoiceBotMark.src.Config
+namespace DiscordVoiceBotMark.Config
 {
     internal static class VoiceExtensions
     {

@@ -1,5 +1,5 @@
 ﻿
-namespace DiscordVoiceBotMark.src.Pipeline
+namespace DiscordVoiceBotMark.Pipeline
 {
     public interface ISpeechToTextService
     {
