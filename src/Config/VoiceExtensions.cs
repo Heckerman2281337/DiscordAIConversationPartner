@@ -2,7 +2,7 @@
 using DiscordVoiceBotMark.Discord;
 using DiscordVoiceBotMark.Orchestration;
 using DiscordVoiceBotMark.Pipeline;
-using DiscordVoiceBotMark.src.Voice;
+using DiscordVoiceBotMark.Voice;
 using Microsoft.Extensions.DependencyInjection;
 using Whisper.net;
 
@@ -13,7 +13,7 @@ namespace DiscordVoiceBotMark.Config
         public static string WhisperDownload()
         {
             string modelFolder = Path.Combine(AppContext.BaseDirectory, "Models");
-            string modelPath = Path.Combine(modelFolder, "ggml-base.bin");
+            string modelPath = Path.Combine(modelFolder, "ggml-small.bin");
             string tempPath = modelPath + ".tmp";
 
             // if whisper model is ok
@@ -24,24 +24,24 @@ namespace DiscordVoiceBotMark.Config
                 Console.WriteLine($"[Debug] Файл обнаружен! Путь: {modelPath}");
                 Console.WriteLine($"[Debug] Реальный размер файла на диске: {actualLength} байт");
 
-                if (actualLength > 135_000_000)
+                if (actualLength > 450_000_000)
                 {
                     Console.WriteLine("[Whisper] Модель найдена локально, инициализирую фабрику.");
                     return modelPath;
                 }
 
-                Console.WriteLine($"[Debug] Размер {actualLength} меньше лимита 135_000_000. Файл признан битым.");
+                Console.WriteLine($"[Debug] Размер {actualLength} меньше лимита 450_000_000. Файл признан битым.");
             }
 
             // if whisper model is corrupted
             if (File.Exists(modelPath)) File.Delete(modelPath);
             if (File.Exists(tempPath)) File.Delete(tempPath);
 
-            Console.WriteLine("[Whisper] Модель не найдена или повреждена. Начинаю скачивание (141 MB)...");
+            Console.WriteLine("[Whisper] Модель не найдена или повреждена. Начинаю скачивание (465 MB)...");
             Directory.CreateDirectory(modelFolder);
 
             using var httpClient = new HttpClient();
-            string downloadUrl = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin";
+            string downloadUrl = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin";
 
             try
             {
@@ -66,7 +66,7 @@ namespace DiscordVoiceBotMark.Config
 
             return modelPath;
         }
-
+            
         public static IServiceCollection AddVoiceServices(this IServiceCollection services)
         {
             var modelPath = WhisperDownload();

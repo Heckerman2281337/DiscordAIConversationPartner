@@ -3,6 +3,10 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Text.Json;
 
+
+///
+///REPLACE AI ON Qwen 2.5 3B - Done
+///
 namespace DiscordVoiceBotMark.Pipeline
 {
     internal sealed class LlmService : ILlmService
@@ -23,7 +27,7 @@ namespace DiscordVoiceBotMark.Pipeline
             _modelName = Environment.GetEnvironmentVariable("LLM_MODEL_NAME");
             if ( _modelName == null )
             {
-                _modelName = "qwen2:1.5b";
+                _modelName = "qwen-uncensored:latest";
                 _logger.Log(LogLevel.Warning, $"[LlmService] Нет LLM_MODEL_NAME, использую дефолтную: {_modelName}");
             }
                 
@@ -58,8 +62,8 @@ namespace DiscordVoiceBotMark.Pipeline
                 model = _modelName,
                 messages = messagesPayload,
                 stream = true,
-                max_tokens = 15,
-                temperature = 0.4
+                max_tokens = 30,
+                temperature = 0.1
             };
             //HTTP requests
             var request = new HttpRequestMessage(HttpMethod.Post, _endpoint);

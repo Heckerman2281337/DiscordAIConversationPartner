@@ -27,8 +27,8 @@ uploads/
 # OS
 .DS_Store
 Thumbs.db
-Desktop.iniModels/ggml-base.bin
-Models/ggml-base.bin
+Desktop.iniModels/ggml-small.bin
+Models/ggml-small.bin
 
 # Python virtual env
 **/xtts_env/
