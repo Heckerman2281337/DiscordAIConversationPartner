@@ -2,7 +2,7 @@
 using DiscordVoiceBotMark.Discord;
 using DiscordVoiceBotMark.Orchestration;
 using DiscordVoiceBotMark.Pipeline;
-using DiscordVoiceBotMark.src.Voice;
+using DiscordVoiceBotMark.Voice;
 using Microsoft.Extensions.DependencyInjection;
 using Whisper.net;
 
@@ -37,7 +37,7 @@ namespace DiscordVoiceBotMark.Config
             if (File.Exists(modelPath)) File.Delete(modelPath);
             if (File.Exists(tempPath)) File.Delete(tempPath);
 
-            Console.WriteLine("[Whisper] Модель не найдена или повреждена. Начинаю скачивание (141 MB)...");
+            Console.WriteLine("[Whisper] Модель не найдена или повреждена. Начинаю скачивание (140 MB)...");
             Directory.CreateDirectory(modelFolder);
 
             using var httpClient = new HttpClient();
@@ -66,7 +66,7 @@ namespace DiscordVoiceBotMark.Config
 
             return modelPath;
         }
-
+            
         public static IServiceCollection AddVoiceServices(this IServiceCollection services)
         {
             var modelPath = WhisperDownload();

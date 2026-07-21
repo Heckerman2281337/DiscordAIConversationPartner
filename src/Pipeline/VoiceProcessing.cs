@@ -3,6 +3,13 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
+///
+///
+/// NOTE: 
+/// 1.WRITE CONTEXT IN HISTORY EVEN IF NAME OF THE BOT DOESNT APPEAR
+///
+///
+
 namespace DiscordVoiceBotMark.Pipeline
 {
     internal sealed class VoiceProcessing
@@ -17,8 +24,6 @@ namespace DiscordVoiceBotMark.Pipeline
             _voiceOutputService = voiceOutputService;
             _chatHistoryManager = chatHistoryManager;
             _logger = logger;
-
-            _logger.LogCritical("!!! КОНСТРУКТОР VOICEPROCESSING ВЫЗВАН !!!");
 
         }
 

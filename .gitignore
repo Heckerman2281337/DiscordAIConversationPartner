@@ -27,7 +27,8 @@ uploads/
 # OS
 .DS_Store
 Thumbs.db
-Desktop.iniModels/ggml-base.bin
+Desktop.iniModels/ggml-small.bin
+Models/ggml-small.bin
 Models/ggml-base.bin
 
 # Python virtual env
@@ -40,4 +41,4 @@ localTts/xtts_models/
 **/localTts/*.wav
 
 # AI Models
-**/tts_models/
+**/tts_models/Models/*.bin

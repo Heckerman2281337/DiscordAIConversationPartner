@@ -25,7 +25,7 @@ namespace DiscordVoiceBotMark.Voice
             {
                 var lastPackageTime = DateTime.UtcNow - session.LastPackageUTC;
 
-                if (lastPackageTime > TimeSpan.FromMilliseconds(1200) && session.IsSpeaking == true)
+                if (lastPackageTime > TimeSpan.FromMilliseconds(600) && session.IsSpeaking == true)
                 {
                     SpeechEnded?.Invoke(session.UserId);
                     session.IsSpeaking = false;
