@@ -47,13 +47,14 @@ namespace DiscordVoiceBotMark.Pipeline
             
             var text = builder.ToString().Trim();
             /*
+            Removing whisper hallucinations
             text = Regex.Replace(text, @"\[.*?\]|\(.*?\)", "").Trim();
 
             var hallucinations = new[] { "субтитры", "продолжение следует", "спасибо за просмотр" };
             
             if (hallucinations.Any(h => text.Contains(h, StringComparison.OrdinalIgnoreCase)))
             {
-                return null;
+                return null;    
             }
 
             if (string.IsNullOrWhiteSpace(text) || text.Length < 2)
