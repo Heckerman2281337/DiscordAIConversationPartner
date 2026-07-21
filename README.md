@@ -2,10 +2,8 @@
 
 A C# (.NET 9, Discord.Net) Discord bot capable of maintaining a full Voice-to-Voice dialogue in a voice channel. It listens to participants, recognizes speech, generates a response via an LLM, and speaks it out using a cloned voice.
 
-> Note: This project is in active development. Part of the pipeline (playing back the response in the voice channel) is not yet implemented.
-
 ## How It Works
-Voice channel (Discord) ➔ VoiceCaptureService (RTP/Opus, per-user) ➔ VoiceActivityDetector (silence > 1.2s) ➔ UtteranceCollector (Opus ➔ PCM) ➔ SpeechToTextService (Whisper) ➔ ChatHistoryManager (history) ➔ LlmService (LLM/OpenRouter) ➔ TextToSpeechService (Fish Audio) ➔ VoiceOutputService (streaming PCM to the channel)
+Voice channel (Discord) ➔ VoiceCaptureService (RTP/Opus, per-user) ➔ VoiceActivityDetector (silence > 0.6s) ➔ UtteranceCollector (Opus ➔ PCM) ➔ SpeechToTextService (Whisper) ➔ ChatHistoryManager (history) ➔ LlmService (LLM/OpenRouter/Ollama) ➔ TextToSpeechService (XTTSv2) ➔ VoiceOutputService (streaming PCM to the channel)
 ## Tech Stack
 - .NET 9 / C#
 - Discord.Net 3.20.1
@@ -13,10 +11,8 @@ Voice channel (Discord) ➔ VoiceCaptureService (RTP/Opus, per-user) ➔ VoiceAc
 - Whisper (STT)
 - Ollama - for local LLM inference.
 - Python & XTTS - for local text-to-speech generation.
-- 
 ## Setting Up Local Services
 Before running the Discord bot, you need to set up the local AI services for generating text and voice.
-
 ### 1. Local LLM (Ollama)
 1. Download and install [Ollama](https://ollama.com/).
 2. Pull your preferred language model. For example:
