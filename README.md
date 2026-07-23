@@ -12,19 +12,32 @@ Voice channel (Discord) ➔ VoiceCaptureService (RTP/Opus, per-user) ➔ VoiceAc
 - Ollama - for local LLM inference.
 - Python & XTTS - for local text-to-speech generation.
 ## Setting Up Local Services
-Before running the Discord bot, you need to set up the local AI services for generating text and voice.
-### 1. Local LLM (Ollama)
+You have two options for running the project: using Docker Compose (Recommended) or setting up the services locally on your host machine.
+### Option 1: Docker Compose (Recommended)
+This method automatically builds and links the .NET bot and the Python TTS server in an isolated environment.
+1. Install Docker and Docker Compose. *(If you want to use your GPU for fast TTS generation, ensure the NVIDIA Container Toolkit is installed).*
+2. Download the XTTS v2.0.2 model files and place them in the `localTts/models/` directory.
+3. Start **Ollama** locally or in a separate container.
+4. Create a `.env` file based on `.env.example`. Ensure your TTS endpoint points to the Docker service:
+   `TTS_API_ENDPOINT=http://tts-server:8020/tts_to_audio/`
+5. Create a `system prompt.txt` file in the project root to define the bot's personality.
+6. Build and run the stack:
+   ```bash
+   docker compose up --build
+### Option 2: Local Setup
+#### 1. Local LLM (Ollama)
 1. Download and install [Ollama](https://ollama.com/).
 2. Pull your preferred language model. For example:
    ```bash
    ollama pull llama3
 3. Ensure the Ollama server is running (usually on http://localhost:11434).
-### 2.Local TTS (Python)
+#### 2.Local TTS (Python)
 1. Install Python (3.9 to 3.11 recommended).
 2. Download the XTTS v2.0.2 model files (model.pth, speakers_xtts.pth, vocab.json, config.json) and place them in the localTts/xtts_models/v2.0.2/ directory. (Note: These files are large and not included in the repository).
 3. Run localTts/setup.bat to install all required dependencies from requirements.txt.
 4. Run localTts/run.bat to start the TTS server.
-## Running the Bot
+
+#### Running the Bot
 1. Start **Ollama**.
 2. Run `localTts/run.bat` to spin up the TTS server.
 3. Build and run the C# .NET project:
@@ -40,11 +53,13 @@ Create a .env file in the root of the project:
 BOT_TOKEN=your_discord_bot_token
 
 LLM_API_ENDPOINT=http://localhost:11434/api/generate
+# Use http://tts-server:8020/tts_to_audio/ for Docker Compose
+# Use [http://127.0.0.1:5000/tts](http://127.0.0.1:5000/tts) for local Python setup
 TTS_API_ENDPOINT=[http://127.0.0.1:5000/tts](http://127.0.0.1:5000/tts) # Default for the local Python TTS server
 STT_API_ENDPOINT=
 
-BOT_SYSTEM_PROMPT=Your persona description here...
 ```
+For bot prompt create a system prompt.txt and write bot prompt in it.
 ### Chat Commands
 
 - `!join` — the bot joins the voice channel where the message author is currently located.
