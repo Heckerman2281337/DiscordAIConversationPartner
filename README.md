@@ -7,7 +7,6 @@ Voice channel (Discord) ➔ VoiceCaptureService (RTP/Opus, per-user) ➔ VoiceAc
 ## Tech Stack
 - .NET 9 / C#
 - Discord.Net 3.20.1
-- Concentus - decoding Opus → PCM in managed code
 - Whisper (STT)
 - Ollama - for local LLM inference.
 - Python & XTTS - for local text-to-speech generation.
@@ -55,8 +54,7 @@ BOT_TOKEN=your_discord_bot_token
 LLM_API_ENDPOINT=http://localhost:11434/api/generate
 # Use http://tts-server:8020/tts_to_audio/ for Docker Compose
 # Use [http://127.0.0.1:5000/tts](http://127.0.0.1:5000/tts) for local Python setup
-TTS_API_ENDPOINT=[http://127.0.0.1:5000/tts](http://127.0.0.1:5000/tts) # Default for the local Python TTS server
-STT_API_ENDPOINT=
+TTS_API_ENDPOINT=http://127.0.0.1:5000/tts # Default for the local Python TTS server
 
 ```
 For bot prompt create a system prompt.txt and write bot prompt in it.
