@@ -25,6 +25,11 @@
 	
 		
   <ItemGroup>
+	<None Update="nativeLibs\libdave.so">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+	    <Link>libdave.so</Link>
+	</None>
     <None Update="Models\ggml-base.bin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -44,6 +49,12 @@
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		  <CopyToPublishDirectory>Always</CopyToPublishDirectory>
 	  </None>
+  </ItemGroup>
+
+	
+		
+  <ItemGroup>
+    <Folder Include="localTts\NewFolder\" />
   </ItemGroup>
 
 </Project>

@@ -112,7 +112,10 @@ namespace DiscordVoiceBotMark.Discord
 
                 try
                 {
-                    var handle = NativeLibrary.Load("libdave");
+                    string libPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                        ? "/app/libdave.so"
+                        : "libdave.dll";
+                    var handle = NativeLibrary.Load(libPath);
                     Console.WriteLine("libdave loaded successfully");
                     NativeLibrary.Free(handle);
                 }
