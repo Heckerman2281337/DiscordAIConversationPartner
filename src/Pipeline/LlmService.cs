@@ -30,12 +30,16 @@ namespace DiscordVoiceBotMark.Pipeline
                 _modelName = "qwen-uncensored:latest";
                 _logger.Log(LogLevel.Warning, $"[LlmService] Нет LLM_MODEL_NAME, использую дефолтную: {_modelName}");
             }
-                
-            _systemPromt = Environment.GetEnvironmentVariable("BOT_SYSTEM_PROMPT");
-            if (_systemPromt == null)
+
+            string promptPath = "system prompt.txt";
+            if (File.Exists(promptPath))
+            {
+                _systemPromt = File.ReadAllText(promptPath);
+            }
+            else
             {
                 _systemPromt = "Ты полезный ИИ-ассистент.";
-                _logger.Log(LogLevel.Error, $"[LlmService] Нет BOT_SYSTEM_PROMPT, установлен дефолтный");
+                _logger.Log(LogLevel.Error, $"[LlmService] Файл '{promptPath}' не найден, установлен дефолтный промпт");
             }
         }
 

@@ -38,7 +38,9 @@ localTts/xtts_models/
 *.pth
 
 # Audio samples
-**/localTts/*.wav
+**/localTts/speakers
 
 # AI Models
 **/tts_models/Models/*.bin
+
+system prompt.txt
