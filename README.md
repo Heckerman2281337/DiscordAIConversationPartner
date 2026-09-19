@@ -1,4 +1,7 @@
+# !!CURRENTLY DOESN'T DEPLOYED CAUSE IM BROKE!!
 # DiscordVoiceBot
+
+
 Pet project that I created to practice something new. Also to have fun with friends.
 
 ## How It Works
