@@ -60,16 +60,9 @@ You can run this proj either with Docker compose or set all dependencies locally
 - A Discord bot token with the Message Content Intent enabled, and an invite link with Connect, Speak, Send Messages, and View Channels permissions.
 
 ### Environment Variables
-Create a .env file in the root of the project:
-```
-BOT_TOKEN=your_discord_bot_token
+Create a .env file in the root of the project
+* check env.example
 
-LLM_API_ENDPOINT=http://localhost:11434/api/generate
-# Use http://tts-server:8020/tts_to_audio/ for Docker Compose
-# Use [http://127.0.0.1:5000/tts](http://127.0.0.1:5000/tts) for local Python setup
-TTS_API_ENDPOINT=http://127.0.0.1:5000/tts # Default for the local Python TTS server
-
-```
 For bot prompt create a system prompt.txt and write bot prompt in it.
 ### Chat Commands
 - `!join` — the bot joins the voice channel where the message author is currently located.
