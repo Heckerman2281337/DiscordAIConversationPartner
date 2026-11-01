@@ -3,32 +3,40 @@ using System.Collections.Concurrent;
 
 namespace DiscordVoiceBotMark.Orchestration
 {
+    public record ChatMessage(string Role, string Content);
+
     public interface IChatHistoryManager
     {
-        public List<object> GetHistory(ulong guildId);
+        public IReadOnlyList<ChatMessage> GetHistory(ulong guildId);
         public void AddMessage(ulong guildId, string role, string content);
         public void ClearHistory(ulong guildId);
     }
 
     internal sealed class ChatHistoryManager : IChatHistoryManager
     {
-        private readonly ConcurrentDictionary<ulong, List<object>> _histories = new();
+        private readonly ConcurrentDictionary<ulong, List<ChatMessage>> _histories = new();
 
-        public List<object> GetHistory(ulong guildId)
+        public IReadOnlyList<ChatMessage> GetHistory(ulong guildId)
         {
             // if no history for channel - add new history
-            return _histories.GetOrAdd(guildId, _ => new List<object>());
+            var history = GetOrCreateHistory(guildId);
+
+            lock (history)
+            {
+                return history.ToList();
+            }
         }
 
         public void AddMessage(ulong guildId, string role, string content)
         {
-            var history = GetHistory(guildId);
+            var history = GetOrCreateHistory(guildId);
+            var newMessage = new ChatMessage(role, content);
 
             lock (history) // protect from collision(if more than 1 user speaks at the same time)
             {
-                history.Add(new {role, content});
+                history.Add(newMessage);
 
-                if(history.Count > 20)
+                if (history.Count > 20)
                 {
                     history.RemoveAt(0);
                 }
@@ -38,6 +46,11 @@ namespace DiscordVoiceBotMark.Orchestration
         public void ClearHistory(ulong guildId)
         {
             _histories.TryRemove(guildId, out _);
+        }
+
+        private List<ChatMessage> GetOrCreateHistory(ulong guildId)
+        {
+            return _histories.GetOrAdd(guildId, _ => new List<ChatMessage>());
         }
     }
 }
