@@ -25,6 +25,21 @@ namespace DiscordVoiceBotMark.Pipeline
             _chatHistoryManager = chatHistoryManager;
             _logger = logger;
 
+            _names = new Dictionary<ulong, string>();
+            var rawNames = Environment.GetEnvironmentVariable("NAMES") ?? "";
+            var pairs = rawNames.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            foreach (var pair in pairs)
+            {
+                var parts = pair.Split(':', 2, StringSplitOptions.TrimEntries);
+                if (parts.Length == 2 && ulong.TryParse(parts[0], out ulong id))
+                {
+                    _names[id] = parts[1];
+                }
+                else
+                {
+                    _logger.LogWarning($"[Config] Не удалось распарсить пару в NAMES: '{pair}'");
+                }
+            }
         }
 
         private readonly ISpeechToTextService _speechToTextService;
@@ -33,27 +48,9 @@ namespace DiscordVoiceBotMark.Pipeline
         private readonly IVoiceOutputService _voiceOutputService;
         private readonly IChatHistoryManager _chatHistoryManager;
         private readonly ILogger<VoiceProcessing> _logger;
-        
+        private readonly Dictionary<ulong, string> _names; // id -> preferred username
         // Seperate queue for each guild
         private readonly ConcurrentDictionary<ulong, SemaphoreSlim> _guildLocks = new();
-        //From id to names
-        private readonly Dictionary<ulong, string> _names = new()
-        {
-            {468700134008553472, "Шурик"},
-            {301366361236570122, "Миша" },
-            {522805439767904266, "Андрей"},
-            {476665894182060042, "Марк" },
-            {349152582528270347, "Саша Зильбер" },
-            {351760723493257217, "Рома" },
-            {589711182290485279, "Бодя" },
-            {270393513278046209, "Марк" },
-            {360708126124670976, "Илья Лучов" },
-            {831916416592379914, "Паша" },
-            {762304407546494997, "Кэзбек" },
-            {1180964704856846457, "Илья васдаф" },
-            {358608717911949312, "Саша Марченко" }
-        };
-
 
         public async Task ExecutePipelineAsync(ulong userId, ulong guildId, byte[] inputAudio)
         {
@@ -92,11 +89,11 @@ namespace DiscordVoiceBotMark.Pipeline
             }
         }
 
-        private async Task ProcessLlmStreamAndPlayAsync(List<object> history, ulong userId, ulong guildId)
+        private async Task ProcessLlmStreamAndPlayAsync(IReadOnlyList<ChatMessage> history, ulong userId, ulong guildId)
         {
             _logger.LogInformation($"[DEBUG] ProcessLlmStreamAndPlayAsync");
             var sentenceBuffer = new System.Text.StringBuilder();
-            var fullAiAnswer = new System.Text.StringBuilder(); 
+            var fullAiAnswer = new System.Text.StringBuilder();
 
             await foreach (var token in _llmService.ExecuteLlmAsync(history))
             {

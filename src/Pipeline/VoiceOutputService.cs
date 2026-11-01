@@ -55,10 +55,6 @@ namespace DiscordVoiceBotMark.Pipeline
             {
                 _logger.Log(LogLevel.Error, $"[VoiceOutputService] Ошибка при отправке аудио в Discord: {ex.Message}");
             }
-            finally
-            {
-                await outputStream.FlushAsync();
-            }
         }
     }
 }

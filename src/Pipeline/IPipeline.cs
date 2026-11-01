@@ -1,4 +1,5 @@
-﻿
+﻿using DiscordVoiceBotMark.Orchestration;
+
 namespace DiscordVoiceBotMark.Pipeline
 {
     public interface ISpeechToTextService
@@ -7,7 +8,7 @@ namespace DiscordVoiceBotMark.Pipeline
     }
     public interface ILlmService
     {
-        public IAsyncEnumerable<string> ExecuteLlmAsync(List<object> history);
+        public IAsyncEnumerable<string> ExecuteLlmAsync(IReadOnlyList<ChatMessage> history);
     }
     public interface ITextToSpeechService
     {

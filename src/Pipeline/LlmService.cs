@@ -1,8 +1,7 @@
-﻿using DotNetEnv;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Net.Http.Json;
 using System.Text.Json;
-
+using DiscordVoiceBotMark.Orchestration;
 
 ///
 ///REPLACE AI ON Qwen 2.5 3B - Done
@@ -49,7 +48,7 @@ namespace DiscordVoiceBotMark.Pipeline
         private readonly string? _modelName;
         private readonly string? _systemPromt; 
 
-        public async IAsyncEnumerable<string> ExecuteLlmAsync(List<object> history)
+        public async IAsyncEnumerable<string> ExecuteLlmAsync(IReadOnlyList<ChatMessage> history)
         {
             if(history == null || history.Count == 0) yield break;
 
