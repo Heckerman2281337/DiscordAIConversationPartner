@@ -29,9 +29,10 @@ You can run this proj either with Docker compose or set all dependencies locally
 ### Option 1: Docker Compose 
 1. Install Docker and Docker Compose. > GPU acceleration requires NVIDIA Container Toolkit.
 2. Download the XTTS v2.0.2 model files and place them in the `localTts/models/` directory.
-3. Start Ollama locally or in a separate container.
+3. Ollama runs automatically as a Docker Compose service. You do not need to install it separately.
 4. Create a `.env` file based on `.env.example`. Make sure your TTS endpoint points to the Docker service:
    `TTS_API_ENDPOINT=http://tts-server:8020/tts_to_audio/`
+   `LLM_API_ENDPOINT=http://ollama:11434/v1/chat/completions`
 5. Create a `system prompt.txt` file in the project root to define the bots personality (btw some bots has censor on, but default model here is uncensored one).
 6. Build and run:
    ```bash
