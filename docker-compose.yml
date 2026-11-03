@@ -1,21 +1,21 @@
-version: '3.8'
-
 services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+    - ollama_data:/root/.ollama
   tts-server:
     build:
       context: ./localTts
       dockerfile: Dockerfile
-    ports:
-      - "8020:8020"
+    container_name: tts-server
+    restart: unless-stopped
     volumes:
       - ./localTts/models:/app/models
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
+      - ./localTts/sample.wav:/app/sample.wav:ro   
+    expose:
+      - 8020
 
   discord-bot:
     build:
@@ -27,6 +27,7 @@ services:
       - ./system prompt.txt:/app/system prompt.txt
     depends_on:
       - tts-server
-    environment:
-      - TTS_API_URL=http://tts-server:8020/tts_to_audio/
-      - LLM_API_ENDPOINT=http://host.docker.internal:11434/v1/chat/completions
+      - ollama
+      
+volumes:
+  ollama_data:

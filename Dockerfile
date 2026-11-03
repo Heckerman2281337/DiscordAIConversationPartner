@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1
-
 # =========================
 # Build
 # =========================
@@ -36,14 +34,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libstdc++6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Для Discord.Net
+
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libopus.so.0 /usr/lib/x86_64-linux-gnu/libopus.so && \
     ln -sf /usr/lib/x86_64-linux-gnu/libsodium.so.23 /usr/lib/x86_64-linux-gnu/libsodium.so
 
-# Копируем опубликованное приложение
 COPY --from=build /app/publish .
 
-# Копируем Linux-версию libdave
 COPY nativeLibs/libdave.so ./libdave.so
 
 RUN ls -l /app/libdave.so && \
