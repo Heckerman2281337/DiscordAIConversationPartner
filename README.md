@@ -27,16 +27,18 @@ Voice channel (Discord) ➔ VoiceCaptureService (RTP/Opus, per-user) ➔ VoiceAc
 ## How to run
 You can run this proj either with Docker compose or set all dependencies locally (but who will do all dat?)
 ### Option 1: Docker Compose 
-1. Install Docker and Docker Compose. > GPU acceleration requires NVIDIA Container Toolkit.
+1. Install Docker and Docker Compose. > GPU acceleration requires NVIDIA Container Toolkit. 
 2. Download the XTTS v2.0.2 model files and place them in the `localTts/models/` directory.
 3. Ollama runs automatically as a Docker Compose service. You do not need to install it separately.
-4. Create a `.env` file based on `.env.example`. Make sure your TTS endpoint points to the Docker service:
+4. Create a `.env` file based on `.env.example`. Make sure your TTS and LLM endpoints points to the Docker service:
    `TTS_API_ENDPOINT=http://tts-server:8020/tts_to_audio/`
    `LLM_API_ENDPOINT=http://ollama:11434/v1/chat/completions`
 5. Create a `system prompt.txt` file in the project root to define the bots personality (btw some bots has censor on, but default model here is uncensored one).
 6. Build and run:
    ```bash
-   docker compose up --build
+   docker compose up -d --build ollama tts-server
+   docker compose exec ollama ollama pull qwen-uncensored:latest
+   docker compose up -d --build discord-bot```
 ### Option 2: Local Setup
 #### 1. Local LLM (Ollama)
 1. Download and install [Ollama](https://ollama.com/).
@@ -53,7 +55,10 @@ You can run this proj either with Docker compose or set all dependencies locally
 #### Running the Bot
 1. Start Ollama.
 2. Run `localTts/run.bat` to spin up the TTS server (!!!DO NOT CLOSE THE BAT WINDOW WHILE USING BOT!!!).
-3. Build and run the C# .NET project:
+3. Create a `.env` file based on `.env.example`. Make sure your endpoints looks like that:
+   `TTS_API_ENDPOINT=http://localhost:8020/tts_to_audio/`
+   `LLM_API_ENDPOINT=http://localhost:11434/v1/chat/completions`
+4. Build and run the C# .NET project:
    ```bash
    dotnet run
 ### Requirements
